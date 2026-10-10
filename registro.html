@@ -3,381 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Barbería</title>
-    
-    <!-- CONFIGURACIÓN PWA PARA PERMITIR INSTALACIÓN -->
+    <title>Registro de Barbería - Barber Innovation</title>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#3a7bd5">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BarberApp">
-
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0b0f19;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 20px 20px;
+        :root {
+            --primary: #3b82f6;
+            --bg-dark: #070a12;
+            --bg-card: #0f172a;
+            --bg-input: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-cyan: #06b6d4;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: #ffffff;
-        }
-        .container {
-            background: #111827;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 0 25px rgba(0, 225, 255, 0.25), 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(0, 225, 255, 0.4);
-            width: 100%;
-            max-width: 480px;
-            box-sizing: border-box;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 40px;
-        }
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #00d2ff, #3a7bd5, transparent);
-        }
-        .icon-container {
-            text-align: center;
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
-        h2 {
-            text-align: center;
-            color: #ffffff;
-            margin-top: 0;
-            margin-bottom: 8px;
-            font-size: 22px;
-            font-weight: 600;
-        }
-        .subtitle {
-            text-align: center;
-            color: #9ca3af;
-            font-size: 13px;
-            margin-bottom: 25px;
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #d1d5db;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        input {
-            width: 100%;
-            padding: 12px 14px;
-            background-color: #1f2937;
-            border: 1px solid #374151;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 14px;
-            color: #ffffff;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-        input:focus {
-            border-color: #00d2ff;
-            box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.2);
-        }
-        button, .btn-link {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-        }
-        button:hover, .btn-link:hover {
-            opacity: 0.9;
-        }
-        .oculto {
-            display: none !important;
-        }
-        .link-box {
-            background: #1f2937;
-            border: 1px solid #374151;
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        .link-box span {
-            font-size: 11px;
-            color: #9ca3af;
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .link-content {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .link-box input[type="text"] {
-            padding: 8px 10px;
-            font-size: 12px;
-            color: #00d2ff;
-            background: #111827;
-            border: 1px solid #374151;
-            border-radius: 6px;
-            flex-grow: 1;
-        }
-        .btn-copy {
-            background: #374151;
-            color: #ffffff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-            width: auto;
-            margin: 0;
-            box-shadow: none;
-        }
-        .btn-copy:hover {
-            background: #4b5563;
-        }
-        #mensaje {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 500;
         }
 
-        /* Botón flotante PWA */
-        #btnInstalarApp {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            text-align: center;
+            color: #fff;
+        }
+
+        p.subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
-            align-items: center;
-            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-install {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            margin-bottom: 20px;
+            display: none;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- VISTA FORMULARIO -->
-        <div id="seccionFormulario">
-            <div class="icon-container">💈</div>
-            <h2>Registrar Barbería</h2>
-            <div class="subtitle">Introduce los datos de tu local para dar de alta el sistema</div>
-            
-            <form id="formRegistro">
-                <div class="form-group">
-                    <label for="nombre">Nombre de la Barbería:</label>
-                    <input type="text" id="nombre" name="nombre" required placeholder="Ej. Barbería El Dandy">
-                </div>
-                <div class="form-group">
-                    <label for="direccion">Dirección:</label>
-                    <input type="text" id="direccion" name="direccion" placeholder="Ej. Calle 10 # 20-30">
-                </div>
-                <div class="form-group">
-                    <label for="telefono">Teléfono:</label>
-                    <input type="text" id="telefono" name="telefono" placeholder="Ej. 3001234567">
-                </div>
-                <div class="form-group">
-                    <label for="pin">PIN de Administrador:</label>
-                    <input type="password" id="pin" name="pin" placeholder="Ej. 1234">
-                </div>
-                <button type="submit">Registrar Local</button>
-            </form>
-            <div id="mensaje"></div>
-        </div>
+        <!-- Botón de instalación PWA previa si el navegador lo permite -->
+        <button id="btnInstalarApp" class="btn-install">📲 Instalar App de Barbería</button>
 
-        <!-- VISTA DE ÉXITO CON ENLACES GENERADOS Y BOTONES DE COPIAR -->
-        <div id="seccionExito" class="oculto">
-            <div class="icon-container">🎉</div>
-            <h2>¡Registro Exitoso!</h2>
-            <div class="subtitle">Tus enlaces personalizados han sido generados:</div>
+        <h1>Registrar Barbería</h1>
+        <p class="subtitle">Crea tu cuenta e ingresa de inmediato a tu panel de control</p>
 
-            <div class="link-box">
-                <span>📅 Link de Citas (Para tus Clientes):</span>
-                <div class="link-content">
-                    <input type="text" id="inputLinkCliente" readonly>
-                    <button type="button" class="btn-copy" onclick="copiarAlPortapapeles('inputLinkCliente', this)">Copiar</button>
-                </div>
-            </div>
+        <form id="formRegistro">
+            <label>Nombre de la Barbería</label>
+            <input type="text" id="nombreBarberia" placeholder="Ej. Barbería El Estilo" required>
 
-            <div class="link-box">
-                <span>🔐 Link de Administrador (Tu Panel):</span>
-                <div class="link-content">
-                    <input type="text" id="inputLinkAdmin" readonly>
-                    <button type="button" class="btn-copy" onclick="copiarAlPortapapeles('inputLinkAdmin', this)">Copiar</button>
-                </div>
-            </div>
+            <label>Teléfono / WhatsApp de Contacto</label>
+            <input type="tel" id="telefonoBarberia" placeholder="Ej. 3001234567" required>
 
-            <a id="btnIrAdmin" href="#" class="btn-link" style="background: linear-gradient(135deg, #10b981, #047857);">Ir a mi Panel de Administrador ⚙️</a>
-            <button type="button" class="btn-link" onclick="localStorage.removeItem('miBarberiaId'); location.reload();" style="background: linear-gradient(135deg, #4b5563, #374151); margin-top: 10px;">Registrar otra barbería</button>
-        </div>
+            <button type="submit">Crear Mi Barbería y Entrar</button>
+        </form>
     </div>
 
-    <!-- BOTÓN FLOTANTE PARA INSTALAR APLICACIÓN (PWA) -->
-    <button id="btnInstalarApp">
-        📲 Instalar App
-    </button>
-
     <script>
-        // 1. VERIFICAR SI YA HAY UNA BARBERÍA REGISTRADA EN ESTE DISPOSITIVO
-        window.addEventListener('DOMContentLoaded', () => {
-            const barberiaGuardadaId = localStorage.getItem('miBarberiaId');
-            if (barberiaGuardadaId) {
-                // Si ya se registró antes en este celular, lo mandamos directo al admin
-                window.location.href = `/admin.html?id=${barberiaGuardadaId}`;
-                return;
-            }
-        });
-
-        // 2. REGISTRO DEL SERVICE WORKER (Para habilitar PWA en la página de registro)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registrado:', reg.scope))
-                    .catch(err => console.error('Error SW:', err));
-            });
-        }
-
-        let deferredPrompt;
-        const btnInstalar = document.getElementById('btnInstalarApp');
+        // Lógica de PWA (Instalación de la App)
+        let deferredPrompt = null;
+        const btnInstalarApp = document.getElementById('btnInstalarApp');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            if (btnInstalar) {
-                btnInstalar.style.display = 'flex';
+            btnInstalarApp.style.display = 'block';
+        });
+
+        btnInstalarApp.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    btnInstalarApp.style.display = 'none';
+                }
+                deferredPrompt = null;
             }
         });
 
-        if (btnInstalar) {
-            btnInstalar.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        console.log('App instalada');
-                    }
-                    deferredPrompt = null;
-                    btnInstalar.style.display = 'none';
-                }
-            });
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Error:', err));
         }
 
-        // 3. ENVÍO DEL FORMULARIO DE REGISTRO
+        // Procesar Registro de Barbería
         document.getElementById('formRegistro').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const nombre = document.getElementById('nombre').value;
-            const direccion = document.getElementById('direccion').value;
-            const telefono = document.getElementById('telefono').value;
-            const pin = document.getElementById('pin').value;
-            const mensajeDiv = document.getElementById('mensaje');
+
+            const nombre = document.getElementById('nombreBarberia').value.trim();
+            const telefono = document.getElementById('telefonoBarberia').value.trim();
 
             try {
-                const response = await fetch('/api/barberias/registrar', {
+                const res = await fetch('/api/barberias/registrar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, direccion, telefono, pin })
+                    body: JSON.stringify({ nombre, telefono })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
 
-                if (data.success) {
-                    const idGenerado = data.id || data.barberiaId;
-                    const baseUrl = data.baseUrl || window.location.origin;
-
-                    // GUARDAR ID EN LA MEMORIA DEL DISPOSITIVO PARA FUTURAS VISITAS
-                    localStorage.setItem('miBarberiaId', idGenerado);
-
-                    // URLs correspondientes
-                    const urlCliente = `${baseUrl}/?id=${idGenerado}`;
-                    const urlAdmin = `${baseUrl}/admin.html?id=${idGenerado}`;
-
-                    // Asignar a los inputs de texto
-                    document.getElementById('inputLinkCliente').value = urlCliente;
-                    document.getElementById('inputLinkAdmin').value = urlAdmin;
-                    document.getElementById('btnIrAdmin').href = urlAdmin;
-
-                    // Cambiar de sección visualmente
-                    document.getElementById('seccionFormulario').classList.add('oculto');
-                    document.getElementById('seccionExito').classList.remove('oculto');
+                if (data.success && data.barberiaId) {
+                    // Guardar ID y redirigir directamente al panel de administración sin bucles
+                    localStorage.setItem('barberiaId', data.barberiaId);
+                    window.location.href = `/admin.html?id=${data.barberiaId}`;
                 } else {
-                    mensajeDiv.style.color = '#f87171';
-                    mensajeDiv.innerText = data.error || 'Ocurrió un error';
-                }
-            } catch (error) {
-                console.error(error);
-                mensajeDiv.style.color = '#f87171';
-                mensajeDiv.innerText = 'Error de conexión con el servidor.';
-            }
-        });
-
-        // Función para copiar al portapapeles
-        function copiarAlPortapapeles(idInput, boton) {
-            const input = document.getElementById(idInput);
-            if (!input) return;
-
-            input.select();
-            input.setSelectionRange(0, 99999);
-
-            try {
-                const exitoso = document.execCommand('copy');
-                if (exitoso) {
-                    const textoOriginal = boton.innerText;
-                    boton.innerText = '¡Copiado! ✅';
-                    boton.style.background = '#059669';
-                    
-                    setTimeout(() => {
-                        boton.innerText = textoOriginal;
-                        boton.style.background = '#374151';
-                    }, 2000);
-                } else {
-                    alert('No se pudo copiar el enlace.');
+                    alert(data.error || "Ocurrió un error al registrar la barbería.");
                 }
             } catch (err) {
-                console.error('Error al copiar: ', err);
-                alert('Tu navegador no permite la acción de copiado automático.');
+                console.error("Error en registro:", err);
+                alert("Error de conexión con el servidor.");
             }
-        }
+        });
     </script>
 </body>
 </html>
