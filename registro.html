@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Barbería</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b0f19;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+        .container {
+            background: #111827;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(0, 225, 255, 0.25), 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 225, 255, 0.4);
+            width: 100%;
+            max-width: 480px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00d2ff, #3a7bd5, transparent);
+        }
+        .icon-container {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        h2 {
+            text-align: center;
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .subtitle {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #d1d5db;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        input:focus {
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.2);
+        }
+        button, .btn-link {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        button:hover, .btn-link:hover {
+            opacity: 0.9;
+        }
+        .oculto {
+            display: none !important;
+        }
+        .link-box {
+            background: #1f2937;
+            border: 1px solid #374151;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .link-box span {
+            font-size: 11px;
+            color: #9ca3af;
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .link-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .link-box input[type="text"] {
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #00d2ff;
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            flex-grow: 1;
+        }
+        .btn-copy {
+            background: #374151;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            width: auto;
+            margin: 0;
+            box-shadow: none;
+        }
+        .btn-copy:hover {
+            background: #4b5563;
+        }
+        #mensaje {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- VISTA FORMULARIO -->
+        <div id="seccionFormulario">
+            <div class="icon-container">💈</div>
+            <h2>Registrar Barbería</h2>
+            <div class="subtitle">Introduce los datos de tu local para dar de alta el sistema</div>
+            
+            <form id="formRegistro">
+                <div class="form-group">
+                    <label for="nombre">Nombre de la Barbería:</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Ej. Barbería El Dandy">
+                </div>
+                <div class="form-group">
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" name="direccion" placeholder="Ej. Calle 10 # 20-30">
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="text" id="telefono" name="telefono" placeholder="Ej. 3001234567">
+                </div>
+                <div class="form-group">
+                    <label for="pin">PIN de Administrador:</label>
+                    <input type="password" id="pin" name="pin" placeholder="Ej. 1234">
+                </div>
+                <button type="submit">Registrar Local</button>
+            </form>
+            <div id="mensaje"></div>
+        </div>
+
+        <!-- VISTA DE ÉXITO CON ENLACES GENERADOS Y BOTONES DE COPIAR -->
+        <div id="seccionExito" class="oculto">
+            <div class="icon-container">🎉</div>
+            <h2>¡Registro Exitoso!</h2>
+            <div class="subtitle">Tus enlaces personalizados han sido generados:</div>
+
+            <div class="link-box">
+                <span>📅 Link de Citas (Para tus Clientes):</span>
+                <div class="link-content">
+                    <input type="text" id="inputLinkCliente" readonly>
+                    <button type="button" class="btn-copy" onclick="copiarAlPortapapeles('inputLinkCliente', this)">Copiar</button>
+                </div>
+            </div>
+
+            <div class="link-box">
+                <span>🔐 Link de Administrador (Tu Panel):</span>
+                <div class="link-content">
+                    <input type="text" id="inputLinkAdmin" readonly>
+                    <button type="button" class="btn-copy" onclick="copiarAlPortapapeles('inputLinkAdmin', this)">Copiar</button>
+                </div>
+            </div>
+
+            <a id="btnIrAdmin" href="#" class="btn-link" style="background: linear-gradient(135deg, #10b981, #047857);">Ir a mi Panel de Administrador ⚙️</a>
+            <button type="button" class="btn-link" onclick="location.reload()" style="background: linear-gradient(135deg, #4b5563, #374151); margin-top: 10px;">Registrar otra barbería</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value;
+            const direccion = document.getElementById('direccion').value;
+            const telefono = document.getElementById('telefono').value;
+            const pin = document.getElementById('pin').value;
+            const mensajeDiv = document.getElementById('mensaje');
+
+            try {
+                const response = await fetch('/api/barberias/registrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, direccion, telefono, pin })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const idGenerado = data.id || data.barberiaId;
+                    const baseUrl = data.baseUrl || window.location.origin;
+
+                    // URLs correspondientes
+                    const urlCliente = `${baseUrl}/?id=${idGenerado}`;
+                    const urlAdmin = `${baseUrl}/admin.html?id=${idGenerado}`;
+
+                    // Asignar a los inputs de texto
+                    document.getElementById('inputLinkCliente').value = urlCliente;
+                    document.getElementById('inputLinkAdmin').value = urlAdmin;
+
+                    document.getElementById('btnIrAdmin').href = urlAdmin;
+
+                    // Cambiar de sección visualmente
+                    document.getElementById('seccionFormulario').classList.add('oculto');
+                    document.getElementById('seccionExito').classList.remove('oculto');
+                } else {
+                    mensajeDiv.style.color = '#f87171';
+                    mensajeDiv.innerText = data.error || 'Ocurrió un error';
+                }
+            } catch (error) {
+                console.error(error);
+                mensajeDiv.style.color = '#f87171';
+                mensajeDiv.innerText = 'Error de conexión con el servidor.';
+            }
+        });
+
+        // Función corregida y compatible con redes locales (IPs)
+        function copiarAlPortapapeles(idInput, boton) {
+            const input = document.getElementById(idInput);
+            if (!input) return;
+
+            input.select();
+            input.setSelectionRange(0, 99999); // Para dispositivos móviles
+
+            try {
+                const exitoso = document.execCommand('copy');
+                if (exitoso) {
+                    const textoOriginal = boton.innerText;
+                    boton.innerText = '¡Copiado! ✅';
+                    boton.style.background = '#059669';
+                    
+                    setTimeout(() => {
+                        boton.innerText = textoOriginal;
+                        boton.style.background = '#374151';
+                    }, 2000);
+                } else {
+                    alert('No se pudo copiar el enlace.');
+                }
+            } catch (err) {
+                console.error('Error al copiar: ', err);
+                alert('Tu navegador no permite la acción de copiado automático.');
+            }
+        }
+    </script>
+</body>
+</html>

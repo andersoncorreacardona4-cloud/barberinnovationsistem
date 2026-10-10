@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador - Barbería</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --bg-dark: #070a12;
+            --bg-card: #0f172a;
+            --bg-input: #1e293b;
+            --border-color: #334155;
+            --border-focus: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-gold: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            max-width: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+                linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            color: var(--text-main);
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 860px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 35px;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(59, 130, 246, 0.15);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4, #ef4444, #3b82f6);
+            background-size: 300% 100%;
+            animation: gradientMove 6s linear infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 22px;
+            margin-bottom: 28px;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .barber-logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1e40af 0%, #0e7490 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 8px 20px rgba(14, 116, 144, 0.4);
+            border: 2px solid rgba(6, 182, 212, 0.4);
+        }
+
+        h1 {
+            font-size: 26px;
+            color: #ffffff;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .badge-pro {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.1);
+        }
+
+        h2, h3 {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .metric-card span {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .metric-card .number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            margin: 8px 0 16px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 15px;
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+        }
+
+        button, .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: all 0.2s ease;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+        }
+
+        button:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .section-box {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 18px;
+            margin-top: 24px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .citas-neon-box {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%);
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.35), inset 0 0 15px rgba(59, 130, 246, 0.2);
+            position: relative;
+        }
+
+        .card-item {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 16px 18px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        .payment-card-pro {
+            background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #701a75 100%);
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            padding: 22px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(112, 26, 117, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .payment-brand {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .nequi-badge {
+            background: rgba(236, 72, 153, 0.25);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .verified-icon {
+            font-size: 12px;
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        .payment-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nequi-number {
+            font-size: 26px;
+            color: #ffffff;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+
+        .btn-copiar-nequi {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA DE ACCESO POR PIN -->
+    <div id="pantallaPin" class="container" style="max-width: 440px; margin-top: 12vh; text-align: center;">
+        <div style="font-size: 50px; margin-bottom: 12px;">💈</div>
+        <h2 id="tituloAccesoPin">Panel de Administrador</h2>
+        <p style="margin-bottom: 22px;">Introduce tu PIN de seguridad para acceder</p>
+        <form id="formPin">
+            <input type="password" id="inputPin" placeholder="••••" required autocomplete="current-password" style="text-align: center; font-size: 26px; letter-spacing: 10px;">
+            <button type="submit">Desbloquear Panel</button>
+        </form>
+    </div>
+
+    <!-- PANEL DE ADMINISTRACIÓN PRINCIPAL -->
+    <div id="pantallaAdmin" class="container oculto">
+        <div class="header-panel">
+            <div class="brand-container">
+                <div class="barber-logo-icon">💈</div>
+                <div>
+                    <h1 id="tituloBarberia">Panel de Administrador</h1>
+                    <p class="subtitle">Control financiero y de gestión en tiempo real</p>
+                </div>
+            </div>
+            <div class="badge-pro">
+                <span>⚡</span> Sistema Activo
+            </div>
+        </div>
+
+        <!-- Métricas / Ingresos -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Ingresos del Día</span>
+                <div class="number" id="ingresosDia">$0</div>
+            </div>
+            <div class="metric-card">
+                <span>Ingresos del Mes</span>
+                <div class="number" id="ingresosMes">$0</div>
+            </div>
+        </div>
+
+        <!-- CONFIGURACIÓN DE CLAVE ÚNICA DE DUEÑO -->
+        <div class="section-box" style="border: 1px dashed var(--accent-gold);">
+            <h3 style="color: var(--accent-gold);">🔐 Clave Única del Dueño (Protección Total)</h3>
+            <p id="descripcionClaveStatus">Configura tu clave privada. Si ya existe una, deberás ingresarla para cambiarla:</p>
+            
+            <form id="formClaveDueno" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 10px;">
+                <div id="contenedorClaveActual" style="flex: 1; min-width: 140px; margin: 0; display: none;">
+                    <label style="font-size: 11px; display: block; margin-bottom: 4px;">Clave Actual</label>
+                    <input type="password" id="inputClaveActual" placeholder="Ingresa actual" style="margin: 0;">
+                </div>
+                
+                <div style="flex: 1; min-width: 140px; margin: 0;">
+                    <label style="font-size: 11px; display: block; margin-bottom: 4px;" id="labelNuevaClave">Nueva Clave Privada</label>
+                    <input type="password" id="inputClaveDueno" placeholder="Ej. 9999" required style="margin: 0;">
+                </div>
+                
+                <button type="submit" class="btn-success" style="width: auto; margin: 0; padding: 14px 20px;">Guardar Clave</button>
+            </form>
+        </div>
+
+        <!-- Enlace para Clientes -->
+        <div class="section-box">
+            <h3>🔗 Enlace para tus Clientes</h3>
+            <p>Comparte este enlace por WhatsApp para que agenden sus citas:</p>
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
+                <input type="text" id="linkClientesInput" readonly style="margin: 0; background: rgba(15, 23, 42, 0.8); border: 1px dashed var(--accent-cyan); color: var(--accent-cyan); font-family: monospace; font-weight: 600;">
+                <button type="button" id="btnCopiarClientesAdmin" style="width: auto; margin: 0; padding: 14px 20px; background: #2563eb; white-space: nowrap;">Copiar</button>
+            </div>
+        </div>
+
+        <!-- Configuración de Pago (Nequi Profesional + Activación de Suscripción) -->
+        <div class="section-box">
+            <h3>📱 Cuenta de Pago por la Aplicación (Nequi)</h3>
+            <div class="payment-card-pro">
+                <div class="payment-brand">
+                    <span class="nequi-badge">NEQUI OFICIAL</span>
+                    <span class="verified-icon">✔️ Verificada</span>
+                </div>
+                <div class="payment-body">
+                    <div>
+                        <div style="font-size: 12px; color: #cbd5e1; font-weight: 500; text-transform: uppercase;">Número Autorizado</div>
+                        <div class="nequi-number">322 616 7815</div>
+                    </div>
+                    <button type="button" class="btn-copiar-nequi" onclick="copiarNumeroNequi(this)">📋 Copiar Número</button>
+                </div>
+            </div>
+
+            <form id="formPagarSuscripcion" style="background: rgba(15, 23, 42, 0.6); padding: 18px; border-radius: 14px; border: 1px solid rgba(236, 72, 153, 0.3);">
+                <p style="color: #f472b6; font-weight: 600; margin-bottom: 8px;">🚀 Activa / Renueva tu mensualidad (30 días)</p>
+                <p style="font-size: 13px; margin-bottom: 12px;">Transfiere el valor a la cuenta Nequi de arriba e ingresa el número de comprobante:</p>
+                <label style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Número de Comprobante / Referencia Nequi</label>
+                <input type="text" id="referenciaPagoNequiAdmin" placeholder="Ej. 1822125987" required style="margin-top: 4px;">
+                <button type="submit" class="btn-success" style="margin-top: 4px; margin-bottom: 0;">Confirmar Pago y Renovar Suscripción (30 Días)</button>
+            </form>
+        </div>
+
+        <!-- Gestionar Servicios y Precios -->
+        <div class="section-box">
+            <h3>✂️ Gestionar Servicios y Precios</h3>
+            <form id="formServicio">
+                <input type="text" id="nombreServicio" placeholder="Nombre del servicio (Ej. Corte Degradé)" required>
+                <input type="number" id="precioServicio" placeholder="Precio (Ej. 25000)" required>
+                <button type="submit">Agregar Servicio</button>
+            </form>
+            <div id="listaServicios" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Inventario y Venta de Productos -->
+        <div class="section-box">
+            <h3>📦 Inventario y Venta de Productos</h3>
+            
+            <form id="formInventario" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                <p>🔒 Agregar nuevo producto al stock (Exige Clave de Dueño):</p>
+                <input type="text" id="nombreProducto" placeholder="Nombre del producto (Ej. Minoxidil / Cera)" required>
+                <input type="number" id="stockProducto" placeholder="Stock inicial (Ej. 10)" required>
+                <input type="number" id="precioProducto" placeholder="Precio de venta (Ej. 35000)" required>
+                <button type="submit" class="btn-success">Añadir Producto al Inventario</button>
+            </form>
+
+            <p><b>Registrar venta de producto por barbero (Libre para barberos):</b></p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-end;">
+                <div style="flex: 1; min-width: 150px;">
+                    <label style="font-size: 11px; margin-bottom: 4px; display: block;">Barbero</label>
+                    <select id="selectBarberoVenta" style="margin: 0;">
+                        <option value="">Seleccionar Barbero...</option>
+                    </select>
+                </div>
+                
+                <div style="flex: 1; min-width: 150px;">
+                    <label style="font-size: 11px; margin-bottom: 4px; display: block;">Producto</label>
+                    <select id="selectProductoVenta" style="margin: 0;">
+                        <option value="">Seleccionar Producto...</option>
+                    </select>
+                </div>
+                
+                <div style="width: 100px;">
+                    <label style="font-size: 11px; margin-bottom: 4px; display: block;">CANTIDAD</label>
+                    <input type="number" id="cantidadProductoVenta" value="1" min="1" style="margin: 0;" placeholder="Cant">
+                </div>
+                
+                <button type="button" onclick="venderProductoInventario()" class="btn-success" style="width: auto; margin: 0; padding: 14px 20px;">
+                    Vender Producto
+                </button>
+            </div>
+
+            <h4 style="margin-top: 15px; color: #fff;">Stock Disponible en Local</h4>
+            <div id="tablaInventarioAdmin" style="margin-top: 10px;"></div>
+
+            <h4 style="margin-top: 25px; color: #fff;">📋 Historial de Ventas de Productos</h4>
+            <div id="listaVentasProductos" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- Gestionar Barberos y Ver sus Ganancias -->
+        <div class="section-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                <h3>💈 Gestionar Barberos y Ganancias Generadas</h3>
+                <button type="button" class="btn-danger" style="width: auto; margin: 0; padding: 10px 16px; font-size: 13px;" onclick="reiniciarIngresosCaja()">
+                    🔒 Borrar / Reiniciar Caja y Ganancias
+                </button>
+            </div>
+
+            <form id="formBarbero">
+                <input type="text" id="nombreBarbero" placeholder="Nombre del barbero" required>
+                <input type="text" id="especialidadBarbero" placeholder="Especialidad (Opcional)">
+                <button type="submit">Agregar Barbero</button>
+            </form>
+            <div id="listaBarberos" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Citas Agendadas -->
+        <div class="section-box citas-neon-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                <h3 style="color: #67e8f9; margin: 0;">📅 Citas y Solicitudes Recibidas</h3>
+                <button type="button" class="btn-danger" style="width: auto; margin: 0; padding: 10px 16px; font-size: 13px;" onclick="borrarTodasLasCitas()">
+                    🔒 Borrar Todas las Citas
+                </button>
+            </div>
+            <p style="color: #cbd5e1;">Fecha y hora de solicitud registradas automáticamente:</p>
+            <div id="listaCitas" style="margin-top: 15px;">Cargando citas...</div>
+        </div>
+        
+        <button type="button" id="btnCerrarSesion" class="btn-danger" style="margin-top: 35px;" onclick="location.reload()">Cerrar Sesión</button>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const barberiaId = urlParams.get('id');
+
+        if (!barberiaId) {
+            alert("No se ha especificado ninguna barbería en el enlace.");
+            window.location.href = '/';
+        }
+
+        const pantallaPin = document.getElementById('pantallaPin');
+        const pantallaAdmin = document.getElementById('pantallaAdmin');
+        const formPin = document.getElementById('formPin');
+        const inputPin = document.getElementById('inputPin');
+
+        let datosLocalesAdmin = null;
+
+        formPin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pin = inputPin.value.trim();
+
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/validar-pin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    pantallaPin.classList.add('oculto');
+                    pantallaAdmin.classList.remove('oculto');
+                    cargarDatosAdmin();
+                } else {
+                    alert(data.error || "PIN incorrecto");
+                }
+            } catch (err) {
+                console.error("Error al validar PIN:", err);
+                alert("Error de conexión con el servidor.");
+            }
+        });
+
+        document.getElementById('formClaveDueno').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nuevaClave = document.getElementById('inputClaveDueno').value.trim();
+            const claveActual = document.getElementById('inputClaveActual').value.trim();
+
+            if (!nuevaClave) return;
+
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/actualizar-clave-borrado`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ claveActual, nuevaClave })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    document.getElementById('inputClaveDueno').value = '';
+                    document.getElementById('inputClaveActual').value = '';
+                    cargarDatosAdmin();
+                } else {
+                    alert(data.error || "No se pudo actualizar la clave.");
+                }
+            } catch (err) {
+                console.error("Error al actualizar clave:", err);
+                alert("Error de conexión con el servidor.");
+            }
+        });
+
+        const formPagarSuscripcion = document.getElementById('formPagarSuscripcion');
+        if (formPagarSuscripcion) {
+            formPagarSuscripcion.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const referenciaNequi = document.getElementById('referenciaPagoNequiAdmin').value.trim();
+
+                if (!referenciaNequi) {
+                    alert("Por favor ingresa el número de comprobante o referencia.");
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/api/barberias/${barberiaId}/pagar-suscripcion`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ referenciaNequi })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        alert(data.message);
+                        formPagarSuscripcion.reset();
+                        cargarDatosAdmin();
+                    } else {
+                        alert(data.error || "No se pudo procesar el pago.");
+                    }
+                } catch (err) {
+                    console.error("Error al procesar suscripción:", err);
+                    alert("Error de conexión con el servidor.");
+                }
+            });
+        }
+
+        async function cargarDatosAdmin() {
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert(data.error || "Error al cargar datos.");
+                    return;
+                }
+
+                datosLocalesAdmin = data;
+                renderizarPanel(data);
+
+            } catch (err) {
+                console.error("Error cargando datos del admin:", err);
+            }
+        }
+
+        function renderizarPanel(data) {
+            document.getElementById('tituloBarberia').innerText = `Panel: ${data.nombre}`;
+            
+            const baseUri = window.location.origin + window.location.pathname.replace('admin.html', '');
+            const linkClientes = data.baseUrl ? `${data.baseUrl}/?id=${barberiaId}` : `${baseUri}?id=${barberiaId}`;
+            
+            document.getElementById('linkClientesInput').value = linkClientes;
+            document.getElementById('btnCopiarClientesAdmin').onclick = () => copiarAlPortapapeles(linkClientes, document.getElementById('btnCopiarClientesAdmin'));
+
+            document.getElementById('ingresosDia').innerText = `$${Number(data.ingresosDia || 0).toLocaleString()}`;
+            document.getElementById('ingresosMes').innerText = `$${Number(data.ingresosMes || 0).toLocaleString()}`;
+
+            const contenedorClaveActual = document.getElementById('contenedorClaveActual');
+            const descripcionClaveStatus = document.getElementById('descripcionClaveStatus');
+            const labelNuevaClave = document.getElementById('labelNuevaClave');
+
+            if (data.tieneClaveBorrado) {
+                contenedorClaveActual.style.display = 'block';
+                document.getElementById('inputClaveActual').required = true;
+                descripcionClaveStatus.innerText = "Tu clave de protección está activa. Para cambiarla, introduce tu clave actual:";
+                labelNuevaClave.innerText = "Nueva Clave Privada";
+            } else {
+                contenedorClaveActual.style.display = 'none';
+                document.getElementById('inputClaveActual').required = false;
+                descripcionClaveStatus.innerText = "Aún no has configurado tu clave de dueño (protege citas, inventario y caja). Asigna una:";
+                labelNuevaClave.innerText = "Clave Privada Única";
+            }
+
+            // SERVICIOS
+            const divServicios = document.getElementById('listaServicios');
+            divServicios.innerHTML = data.servicios.length ? '' : '<p>No hay servicios registrados.</p>';
+            data.servicios.forEach((s, index) => {
+                divServicios.innerHTML += `
+                    <div class="card-item">
+                        <span><b>${s.nombre}</b> - $${Number(s.precio).toLocaleString()}</span>
+                        <button type="button" class="btn-danger" style="width: auto; padding: 6px 14px; margin:0;" onclick="eliminarServicio(${index})">Eliminar</button>
+                    </div>
+                `;
+            });
+
+            // INVENTARIO & SELECTORES DE VENTA
+            const selectProducto = document.getElementById('selectProductoVenta');
+            const selectBarbero = document.getElementById('selectBarberoVenta');
+            const divInventario = document.getElementById('tablaInventarioAdmin');
+            const divHistorialVentas = document.getElementById('listaVentasProductos');
+
+            selectProducto.innerHTML = '<option value="">Seleccionar Producto...</option>';
+            (data.inventario || []).forEach((prod, idx) => {
+                selectProducto.innerHTML += `<option value="${idx}">${prod.nombre} ($${Number(prod.precio).toLocaleString()} - Stock: ${prod.stock})</option>`;
+            });
+
+            selectBarbero.innerHTML = '<option value="">Seleccionar Barbero...</option>';
+            (data.barberos || []).forEach(barb => {
+                selectBarbero.innerHTML += `<option value="${barb.nombre}">${barb.nombre}</option>`;
+            });
+
+            divInventario.innerHTML = (data.inventario || []).length ? '' : '<p>No hay productos en inventario.</p>';
+            (data.inventario || []).forEach((prod, idx) => {
+                divInventario.innerHTML += `
+                    <div class="card-item">
+                        <span><b>${prod.nombre}</b> | Stock: <b style="color: ${prod.stock > 0 ? '#34d399' : '#ef4444'};">${prod.stock}</b> | Precio: $${Number(prod.precio).toLocaleString()}</span>
+                        <button type="button" class="btn-danger" style="width: auto; padding: 6px 14px; margin:0;" onclick="eliminarProductoInventario(${idx})">🔒 Eliminar (Dueño)</button>
+                    </div>
+                `;
+            });
+
+            divHistorialVentas.innerHTML = (data.ventasProductos || []).length ? '' : '<p>No hay ventas de productos registradas aún.</p>';
+            (data.ventasProductos || []).slice().reverse().forEach(v => {
+                divHistorialVentas.innerHTML += `
+                    <div class="card-item" style="font-size: 13px;">
+                        <span>🛒 <b>${v.barbero}</b> vendió <b>${v.cantidad}x ${v.producto}</b></span>
+                        <span style="color: #34d399; font-weight: bold;">+$${Number(v.total).toLocaleString()} <small style="color:var(--text-muted)">(${v.fecha})</small></span>
+                    </div>
+                `;
+            });
+
+            // BARBEROS Y GANANCIAS
+            const gananciasBarberos = {};
+            (data.barberos || []).forEach(b => {
+                gananciasBarberos[b.nombre.toLowerCase().trim()] = 0;
+            });
+
+            (data.citas || []).forEach(cita => {
+                const esAtendido = cita.estado === 'Completada' || cita.estado === 'Atendido';
+                if (esAtendido && cita.barbero) {
+                    const nombreBarbKey = cita.barbero.toLowerCase().trim();
+                    const servicioEncontrado = data.servicios.find(s => s.nombre.toLowerCase().trim() === cita.servicio.toLowerCase().trim());
+                    const precioServicio = servicioEncontrado ? Number(servicioEncontrado.precio) || 0 : 0;
+
+                    if (gananciasBarberos[nombreBarbKey] !== undefined) {
+                        gananciasBarberos[nombreBarbKey] += precioServicio;
+                    } else {
+                        gananciasBarberos[nombreBarbKey] = precioServicio;
+                    }
+                }
+            });
+
+            const divBarberos = document.getElementById('listaBarberos');
+            divBarberos.innerHTML = (data.barberos || []).length ? '' : '<p>No hay barberos registrados.</p>';
+            (data.barberos || []).forEach((b, index) => {
+                const totalGanado = gananciasBarberos[b.nombre.toLowerCase().trim()] || 0;
+                divBarberos.innerHTML += `
+                    <div class="card-item">
+                        <div>
+                            <span><b>${b.nombre}</b> (${b.especialidad || 'General'})</span><br>
+                            <small style="color: #34d399; font-weight: bold;">Ganancias Acumuladas: $${totalGanado.toLocaleString()}</small>
+                        </div>
+                        <button type="button" class="btn-danger" style="width: auto; padding: 6px 14px; margin:0;" onclick="eliminarBarbero(${index})">Eliminar</button>
+                    </div>
+                `;
+            });
+
+            // CITAS
+            const divCitas = document.getElementById('listaCitas');
+            divCitas.innerHTML = (data.citas || []).length ? '' : '<p>No hay citas agendadas.</p>';
+            (data.citas || []).slice().reverse().forEach((cita, indexReal) => {
+                const indexOriginal = data.citas.length - 1 - indexReal;
+                const estadoClase = cita.estado === 'Atendido' || cita.estado === 'Completada' ? 'color: #34d399;' : 'color: #f59e0b;';
+                
+                divCitas.innerHTML += `
+                    <div class="card-item" style="display: block; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span>👤 <b>${cita.clienteNombre}</b> (${cita.clienteTelefono || 'Sin teléfono'})</span>
+                            <span style="font-weight: bold; ${estadoClase}">${cita.estado || 'Pendiente'}</span>
+                        </div>
+                        <p style="margin: 2px 0;">✂️ Servicio: <b>${cita.servicio}</b></p>
+                        <p style="margin: 2px 0;">💈 Barbero: <b>${cita.barbero || 'General'}</b></p>
+                        <p style="margin: 2px 0; font-size: 12px; color: var(--text-muted);">🕒 ${cita.fechaHora}</p>
+                        <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                            <button type="button" class="btn-success" style="width: auto; padding: 6px 12px; margin:0;" onclick="cambiarEstadoCita(${indexOriginal}, 'Atendido')">Marcar Atendido</button>
+                            <button type="button" class="btn-danger" style="width: auto; padding: 6px 12px; margin:0;" onclick="eliminarCitaIndividual(${indexOriginal})">🔒 Eliminar (Dueño)</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ACCIONES DE GESTIÓN
+        document.getElementById('formServicio').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('nombreServicio').value.trim();
+            const precio = document.getElementById('precioServicio').value.trim();
+
+            await fetch(`/api/barberias/${barberiaId}/servicios`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, precio })
+            });
+            document.getElementById('formServicio').reset();
+            cargarDatosAdmin();
+        });
+
+        async function eliminarServicio(index) {
+            await fetch(`/api/barberias/${barberiaId}/servicios/${index}`, { method: 'DELETE' });
+            cargarDatosAdmin();
+        }
+
+        document.getElementById('formBarbero').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('nombreBarbero').value.trim();
+            const especialidad = document.getElementById('especialidadBarbero').value.trim();
+
+            await fetch(`/api/barberias/${barberiaId}/barberos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, especialidad })
+            });
+            document.getElementById('formBarbero').reset();
+            cargarDatosAdmin();
+        });
+
+        async function eliminarBarbero(index) {
+            const claveDueño = prompt("Introduce tu Clave Única de Dueño para eliminar este barbero:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/barberos/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
+            }
+        }
+
+        document.getElementById('formInventario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('nombreProducto').value.trim();
+            const stock = document.getElementById('stockProducto').value.trim();
+            const precio = document.getElementById('precioProducto').value.trim();
+
+            const claveDueño = prompt("🔒 Introduce tu Clave Única de Dueño para añadir producto al inventario:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/inventario`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, stock, precio, claveDueño })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('formInventario').reset();
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "No se pudo añadir el producto.");
+            }
+        });
+
+        async function eliminarProductoInventario(index) {
+            const claveDueño = prompt("🔒 Introduce tu Clave Única de Dueño para eliminar este producto:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/inventario/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
+            }
+        }
+
+        async function venderProductoInventario() {
+            const barbero = document.getElementById('selectBarberoVenta').value;
+            const productoIndex = document.getElementById('selectProductoVenta').value;
+            const cantidad = document.getElementById('cantidadProductoVenta').value;
+
+            if (!barbero || productoIndex === "" || !cantidad) {
+                alert("Selecciona el barbero, el producto y la cantidad.");
+                return;
+            }
+
+            const res = await fetch(`/api/barberias/${barberiaId}/ventas-productos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ barbero, productoIndex, cantidad })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                document.getElementById('cantidadProductoVenta').value = "1";
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Error al registrar la venta.");
+            }
+        }
+
+        async function cambiarEstadoCita(index, nuevoEstado) {
+            const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}/estado`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+            const data = await res.json();
+            if (data.success) {
+                cargarDatosAdmin();
+            }
+        }
+
+        async function eliminarCitaIndividual(index) {
+            const claveDueño = prompt("🔒 Introduce tu Clave Única de Dueño para eliminar esta cita:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
+            }
+        }
+
+        async function borrarTodasLasCitas() {
+            const claveDueño = prompt("🔒 ADVERTENCIA: Introduce tu Clave de Dueño para vaciar todas las citas:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/citas/borrar-todas?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
+            }
+        }
+
+        async function reiniciarIngresosCaja() {
+            const claveDueño = prompt("🔒 ADVERTENCIA: Introduce tu Clave de Dueño para reiniciar la caja del día y las ganancias de los turnos:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/reiniciar-ingresos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ claveDueño })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
+            }
+        }
+
+        function copiarAlPortapapeles(texto, boton) {
+            navigator.clipboard.writeText(texto).then(() => {
+                const originalText = boton.innerText;
+                boton.innerText = "¡Copiado!";
+                setTimeout(() => { boton.innerText = originalText; }, 2000);
+            });
+        }
+
+        function copiarNumeroNequi(btn) {
+            const numero = "3226167815";
+            navigator.clipboard.writeText(numero).then(() => {
+                const original = btn.innerText;
+                btn.innerText = "¡Copiado!";
+                setTimeout(() => btn.innerText = original, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

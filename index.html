@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Cita - Barbería</title>
+    
+    <!-- Configuración PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --bg-dark: #070a12;
+            --bg-card: #0f172a;
+            --bg-input: #1e293b;
+            --border-color: #334155;
+            --border-focus: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-cyan: #06b6d4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            max-width: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+                linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            color: var(--text-main);
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 35px;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(59, 130, 246, 0.15);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981, #3b82f6);
+            background-size: 300% 100%;
+            animation: gradientMove 6s linear infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header-panel {
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 22px;
+            margin-bottom: 28px;
+        }
+
+        .barber-logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #1e40af 0%, #0e7490 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            box-shadow: 0 8px 20px rgba(14, 116, 144, 0.4);
+            border: 2px solid rgba(6, 182, 212, 0.4);
+            margin: 0 auto 15px auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            margin-top: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 15px;
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+        }
+
+        button, .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 20px;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+        }
+
+        button:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .info-local {
+            background: rgba(30, 41, 59, 0.5);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Botón flotante PWA */
+        #btnInstalarApp {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            cursor: pointer;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-panel">
+            <div class="barber-logo-icon">✂️</div>
+            <h1 id="nombreBarberiaTitulo">Cargando Barbería...</h1>
+            <p class="subtitle">Selecciona tu servicio y aparta tu espacio</p>
+        </div>
+
+        <div class="info-local" id="infoLocalTexto">
+            📍 Cargando detalles del local...
+        </div>
+
+        <form id="formAgendarCita">
+            <label for="clienteNombre">Tu Nombre Completo</label>
+            <input type="text" id="clienteNombre" placeholder="Ej. Carlos Pérez" required>
+
+            <label for="clienteTelefono">Tu Teléfono / WhatsApp</label>
+            <input type="tel" id="clienteTelefono" placeholder="Ej. 3001234567" required>
+
+            <label for="selectServicio">Selecciona el Servicio</label>
+            <select id="selectServicio" required>
+                <option value="">Cargando servicios...</option>
+            </select>
+
+            <label for="selectBarbero">Selecciona el Barbero</label>
+            <select id="selectBarbero" required>
+                <option value="">Cargando barberos...</option>
+            </select>
+
+            <label for="inputFecha">Fecha de Preferencia</label>
+            <input type="date" id="inputFecha" required>
+
+            <button type="submit">📅 Confirmar y Agendar Cita</button>
+        </form>
+    </div>
+
+    <!-- BOTÓN FLOTANTE PARA INSTALAR APLICACIÓN (PWA) -->
+    <button id="btnInstalarApp">
+        📲 Instalar App
+    </button>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const barberiaId = urlParams.get('id');
+
+        if (!barberiaId) {
+            alert("No se ha especificado ninguna barbería.");
+            document.body.innerHTML = '<h2 style="text-align:center; margin-top:20vh; color:#fff;">Error: Enlace de barbería inválido.</h2>';
+        } else {
+            cargarDatosCliente();
+        }
+
+        async function cargarDatosCliente() {
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert("No se encontró la información de esta barbería.");
+                    return;
+                }
+
+                document.getElementById('nombreBarberiaTitulo').innerText = data.nombre;
+                document.getElementById('infoLocalTexto').innerHTML = `📍 <b>Dirección:</b> ${data.direccion || 'No especificada'} | 📞 <b>Tel:</b> ${data.telefono || 'No especificado'}`;
+
+                // Cargar servicios
+                const selectServicio = document.getElementById('selectServicio');
+                selectServicio.innerHTML = '<option value="">Selecciona un servicio...</option>';
+                (data.servicios || []).forEach(s => {
+                    selectServicio.innerHTML += `<option value="${s.nombre} - $${s.precio}">${s.nombre} ($${s.precio.toLocaleString()})</option>`;
+                });
+
+                // Cargar barberos
+                const selectBarbero = document.getElementById('selectBarbero');
+                selectBarbero.innerHTML = '<option value="General">Cualquier barbero disponible</option>';
+                (data.barberos || []).forEach(b => {
+                    selectBarbero.innerHTML += `<option value="${b.nombre}">${b.nombre} (${b.especialidad || 'General'})</option>`;
+                });
+
+            } catch (err) {
+                console.error("Error al cargar datos del cliente:", err);
+            }
+        }
+
+        document.getElementById('formAgendarCita').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const clienteNombre = document.getElementById('clienteNombre').value.trim();
+            const clienteTelefono = document.getElementById('clienteTelefono').value.trim();
+            const servicio = document.getElementById('selectServicio').value;
+            const barbero = document.getElementById('selectBarbero').value;
+            
+            // Enviamos únicamente la fecha seleccionada por el cliente
+            const fechaHora = document.getElementById('inputFecha').value;
+
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/citas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clienteNombre, clienteTelefono, servicio, barbero, fechaHora })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert("¡Cita agendada con éxito! El barbero se pondrá en contacto contigo para confirmarte la hora.");
+                    document.getElementById('formAgendarCita').reset();
+                } else {
+                    alert(data.error || "No se pudo agendar la cita.");
+                }
+            } catch (err) {
+                console.error("Error al enviar cita:", err);
+                alert("Error de conexión con el servidor.");
+            }
+        });
+
+        // ==========================================
+        // LÓGICA DE INSTALACIÓN PWA (Service Worker + Botón)
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registrado:', reg.scope))
+                    .catch(err => console.log('Error Service Worker:', err));
+            });
+        }
+
+        let deferredPrompt;
+        const btnInstalar = document.getElementById('btnInstalarApp');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (btnInstalar) {
+                btnInstalar.style.display = 'flex';
+            }
+        });
+
+        if (btnInstalar) {
+            btnInstalar.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        console.log('PWA aceptada para instalar');
+                    }
+                    deferredPrompt = null;
+                    btnInstalar.style.display = 'none';
+                }
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA instalada correctamente');
+            if (btnInstalar) {
+                btnInstalar.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
