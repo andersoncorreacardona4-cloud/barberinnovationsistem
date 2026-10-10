@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Barbería - Barber Innovation</title>
-    <link rel="manifest" href="/manifest.json">
+    <!-- Forzamos refresco del manifest con ?v=2 para que borre la lavadora en móviles -->
+    <link rel="manifest" href="/manifest.json?v=2">
     <style>
         :root {
             --primary: #3b82f6;
@@ -105,7 +106,7 @@
 <body>
 
     <div class="container">
-        <!-- Botón de instalación PWA previa si el navegador lo permite -->
+        <!-- Botón de instalación PWA -->
         <button id="btnInstalarApp" class="btn-install">📲 Instalar App de Barbería</button>
 
         <h1>Registrar Barbería</h1>
@@ -114,6 +115,9 @@
         <form id="formRegistro">
             <label>Nombre de la Barbería</label>
             <input type="text" id="nombreBarberia" placeholder="Ej. Barbería El Estilo" required>
+
+            <label>Dirección / Ubicación</label>
+            <input type="text" id="direccionBarberia" placeholder="Ej. Calle 10 # 40-20, Medellín" required>
 
             <label>Teléfono / WhatsApp de Contacto</label>
             <input type="tel" id="telefonoBarberia" placeholder="Ej. 3001234567" required>
@@ -144,9 +148,11 @@
             }
         });
 
-        // Registrar Service Worker
+        // Registrar Service Worker forzando actualización de caché
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Error:', err));
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                reg.update(); // Fuerza al Service Worker a buscar versiones nuevas en cada carga
+            }).catch(err => console.log('SW Error:', err));
         }
 
         // Procesar Registro de Barbería
@@ -154,19 +160,19 @@
             e.preventDefault();
 
             const nombre = document.getElementById('nombreBarberia').value.trim();
+            const direccion = document.getElementById('direccionBarberia').value.trim();
             const telefono = document.getElementById('telefonoBarberia').value.trim();
 
             try {
                 const res = await fetch('/api/barberias/registrar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, telefono })
+                    body: JSON.stringify({ nombre, direccion, telefono })
                 });
 
                 const data = await res.json();
 
                 if (data.success && data.barberiaId) {
-                    // Guardar ID y redirigir directamente al panel de administración sin bucles
                     localStorage.setItem('barberiaId', data.barberiaId);
                     window.location.href = `/admin.html?id=${data.barberiaId}`;
                 } else {
