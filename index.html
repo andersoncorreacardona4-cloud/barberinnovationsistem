@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendar Cita - Barbería</title>
     
-    <!-- Configuración PWA -->
+    <!-- CONFIGURACIÓN OBLIGATORIA PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#3b82f6">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BarberApp">
 
     <style>
         :root {
@@ -261,7 +263,7 @@
                 const selectServicio = document.getElementById('selectServicio');
                 selectServicio.innerHTML = '<option value="">Selecciona un servicio...</option>';
                 (data.servicios || []).forEach(s => {
-                    selectServicio.innerHTML += `<option value="${s.nombre} - $${s.precio}">${s.nombre} ($${s.precio.toLocaleString()})</option>`;
+                    selectServicio.innerHTML += `<option value="${s.nombre} - $${s.precio}">${s.nombre} ($${Number(s.precio).toLocaleString()})</option>`;
                 });
 
                 // Cargar barberos
@@ -283,8 +285,6 @@
             const clienteTelefono = document.getElementById('clienteTelefono').value.trim();
             const servicio = document.getElementById('selectServicio').value;
             const barbero = document.getElementById('selectBarbero').value;
-            
-            // Enviamos únicamente la fecha seleccionada por el cliente
             const fechaHora = document.getElementById('inputFecha').value;
 
             try {
@@ -309,13 +309,13 @@
         });
 
         // ==========================================
-        // LÓGICA DE INSTALACIÓN PWA (Service Worker + Botón)
+        // REGISTRO DEL SERVICE WORKER Y CAPTURA DE PWA
         // ==========================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registrado:', reg.scope))
-                    .catch(err => console.log('Error Service Worker:', err));
+                    .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+                    .catch(err => console.error('Error al registrar Service Worker:', err));
             });
         }
 
