@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Barbería</title>
+    
+    <!-- CONFIGURACIÓN PWA PARA PERMITIR INSTALACIÓN -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3a7bd5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BarberApp">
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -31,6 +40,7 @@
             box-sizing: border-box;
             position: relative;
             overflow: hidden;
+            margin-bottom: 40px;
         }
         .container::before {
             content: '';
@@ -163,6 +173,25 @@
             font-size: 13px;
             font-weight: 500;
         }
+
+        /* Botón flotante PWA */
+        #btnInstalarApp {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            cursor: pointer;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
@@ -219,11 +248,61 @@
             </div>
 
             <a id="btnIrAdmin" href="#" class="btn-link" style="background: linear-gradient(135deg, #10b981, #047857);">Ir a mi Panel de Administrador ⚙️</a>
-            <button type="button" class="btn-link" onclick="location.reload()" style="background: linear-gradient(135deg, #4b5563, #374151); margin-top: 10px;">Registrar otra barbería</button>
+            <button type="button" class="btn-link" onclick="localStorage.removeItem('miBarberiaId'); location.reload();" style="background: linear-gradient(135deg, #4b5563, #374151); margin-top: 10px;">Registrar otra barbería</button>
         </div>
     </div>
 
+    <!-- BOTÓN FLOTANTE PARA INSTALAR APLICACIÓN (PWA) -->
+    <button id="btnInstalarApp">
+        📲 Instalar App
+    </button>
+
     <script>
+        // 1. VERIFICAR SI YA HAY UNA BARBERÍA REGISTRADA EN ESTE DISPOSITIVO
+        window.addEventListener('DOMContentLoaded', () => {
+            const barberiaGuardadaId = localStorage.getItem('miBarberiaId');
+            if (barberiaGuardadaId) {
+                // Si ya se registró antes en este celular, lo mandamos directo al admin
+                window.location.href = `/admin.html?id=${barberiaGuardadaId}`;
+                return;
+            }
+        });
+
+        // 2. REGISTRO DEL SERVICE WORKER (Para habilitar PWA en la página de registro)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registrado:', reg.scope))
+                    .catch(err => console.error('Error SW:', err));
+            });
+        }
+
+        let deferredPrompt;
+        const btnInstalar = document.getElementById('btnInstalarApp');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (btnInstalar) {
+                btnInstalar.style.display = 'flex';
+            }
+        });
+
+        if (btnInstalar) {
+            btnInstalar.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        console.log('App instalada');
+                    }
+                    deferredPrompt = null;
+                    btnInstalar.style.display = 'none';
+                }
+            });
+        }
+
+        // 3. ENVÍO DEL FORMULARIO DE REGISTRO
         document.getElementById('formRegistro').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -246,6 +325,9 @@
                     const idGenerado = data.id || data.barberiaId;
                     const baseUrl = data.baseUrl || window.location.origin;
 
+                    // GUARDAR ID EN LA MEMORIA DEL DISPOSITIVO PARA FUTURAS VISITAS
+                    localStorage.setItem('miBarberiaId', idGenerado);
+
                     // URLs correspondientes
                     const urlCliente = `${baseUrl}/?id=${idGenerado}`;
                     const urlAdmin = `${baseUrl}/admin.html?id=${idGenerado}`;
@@ -253,7 +335,6 @@
                     // Asignar a los inputs de texto
                     document.getElementById('inputLinkCliente').value = urlCliente;
                     document.getElementById('inputLinkAdmin').value = urlAdmin;
-
                     document.getElementById('btnIrAdmin').href = urlAdmin;
 
                     // Cambiar de sección visualmente
@@ -270,13 +351,13 @@
             }
         });
 
-        // Función corregida y compatible con redes locales (IPs)
+        // Función para copiar al portapapeles
         function copiarAlPortapapeles(idInput, boton) {
             const input = document.getElementById(idInput);
             if (!input) return;
 
             input.select();
-            input.setSelectionRange(0, 99999); // Para dispositivos móviles
+            input.setSelectionRange(0, 99999);
 
             try {
                 const exitoso = document.execCommand('copy');
