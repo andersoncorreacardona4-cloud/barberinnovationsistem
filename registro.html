@@ -2,10 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro de Barbería - Barber Innovation</title>
-    <!-- v5: Forzamos la actualización del manifest -->
-    <link rel="manifest" href="/manifest.json?v=5">
+    <link rel="manifest" href="/manifest.json?v=7">
     <style>
         :root {
             --primary: #3b82f6;
@@ -15,108 +14,164 @@
             --border-color: #334155;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --barber-red: #ef4444;
+            --barber-red: #dc2626;
             --barber-blue: #2563eb;
         }
 
         * {
+            -webkit-box-sizing: border-box;
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
+            display: -webkit-box;
+            display: -webkit-flex;
             display: flex;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
             justify-content: center;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
             align-items: center;
             min-height: 100vh;
             padding: 15px;
         }
 
-        /* Contenedor principal */
         .container {
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             background: #0f172a;
-            border-radius: 20px;
+            border-radius: 24px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
             overflow: hidden;
         }
 
-        /* Cabecera visual con textura de ladrillos en CSS puro */
+        /* --- CABECERA ESTÉTICA CON CARAMELO DE BARBERO MEJORADO --- */
         .header-section {
             width: 100%;
             height: 180px;
-            background-color: #3b1d1d;
-            background-image: 
-                linear-gradient(335deg, rgba(0,0,0,0.8) 0%, rgba(15,23,42,0.95) 100%),
-                linear-gradient(135deg, #2b1111 25%, transparent 25%),
-                linear-gradient(225deg, #2b1111 25%, transparent 25%),
-                linear-gradient(45deg, #2b1111 25%, transparent 25%),
-                linear-gradient(315deg, #2b1111 25%, rgba(15,23,42,1) 25%);
-            background-position: 10px 0, 10px 0, 0 0, 0 0;
-            background-size: 20px 20px;
-            background-repeat: repeat;
+            background: radial-gradient(circle at center, #1e293b 0%, #070a12 100%);
+            display: -webkit-box;
+            display: -webkit-flex;
             display: flex;
+            -webkit-box-pack: center;
+            -webkit-justify-content: center;
             justify-content: center;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
             align-items: center;
             position: relative;
-            border-bottom: 3px solid var(--barber-red);
+            border-bottom: 2px solid var(--border-color);
         }
 
-        /* Icono de caramelo de barbero */
-        .barber-pole-icon {
-            width: 60px;
-            height: 110px;
-            background: linear-gradient(
-                -45deg,
-                var(--barber-red) 25%,
-                #ffffff 25%,
-                #ffffff 50%,
-                var(--barber-blue) 50%,
-                var(--barber-blue) 75%,
-                #ffffff 75%,
-                #ffffff
-            );
-            background-size: 24px 24px;
-            border-radius: 8px;
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        /* Soporte del poste de barbero */
+        .pole-wrapper {
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
         }
 
-        .barber-pole-icon::before,
-        .barber-pole-icon::after {
+        /* Tapas metálicas cromadas (Arriba y Abajo) */
+        .pole-cap {
+            width: 58px;
+            height: 16px;
+            background: linear-gradient(180deg, #f1f5f9 0%, #94a3b8 50%, #475569 100%);
+            border-radius: 8px 8px 3px 3px;
+            border: 1px solid #cbd5e1;
+            z-index: 2;
+        }
+        .pole-cap.bottom {
+            border-radius: 3px 3px 8px 8px;
+        }
+
+        .pole-globe {
+            width: 32px;
+            height: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+            border-radius: 50% 50% 0 0;
+            margin-bottom: -2px;
+        }
+
+        /* Cilindro de cristal con animación de rotación */
+        .pole-glass {
+            width: 46px;
+            height: 110px;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 15px rgba(59, 130, 246, 0.2);
+            background: #ffffff;
+        }
+
+        /* Franjas giratorias del caramelo */
+        .pole-stripes {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 220px;
+            background: repeating-linear-gradient(
+                -45deg,
+                var(--barber-red),
+                var(--barber-red) 15px,
+                #ffffff 15px,
+                #ffffff 30px,
+                var(--barber-blue) 30px,
+                var(--barber-blue) 45px,
+                #ffffff 45px,
+                #ffffff 60px
+            );
+            animation: rotatePole 3s linear infinite;
+        }
+
+        /* Efecto de brillo de cristal 3D */
+        .pole-glass::after {
             content: '';
             position: absolute;
-            left: -4px;
-            width: calc(100% + 8px);
-            height: 12px;
-            background: #cbd5e1;
-            border-radius: 4px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(0,0,0,0.4) 0%,
+                rgba(255,255,255,0.6) 25%,
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.3) 100%
+            );
+            pointer-events: none;
         }
-        .barber-pole-icon::before { top: -12px; }
-        .barber-pole-icon::after { bottom: -12px; }
+
+        @keyframes rotatePole {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(42px); }
+        }
 
         .calendar-badge {
             position: absolute;
             top: 15px;
-            right: 15px;
+            right: 18px;
             font-size: 22px;
         }
 
-        /* Formulario */
+        /* --- FORMULARIO DE REGISTRO --- */
         .form-content {
             padding: 24px;
         }
 
         h1 {
             font-size: 22px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             text-align: center;
             color: #ffffff;
         }
@@ -133,17 +188,19 @@
             font-size: 13px;
             color: var(--text-muted);
             margin-bottom: 6px;
+            font-weight: 600;
         }
 
         input {
             width: 100%;
-            padding: 12px 14px;
-            margin-bottom: 14px;
+            padding: 13px;
+            margin-bottom: 16px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
             background-color: var(--bg-input);
             color: var(--text-main);
             font-size: 14px;
+            -webkit-appearance: none;
         }
 
         input:focus {
@@ -151,24 +208,19 @@
             border-color: var(--primary);
         }
 
-        input[type="file"] {
-            padding: 8px;
-            background-color: #0b1120;
-            cursor: pointer;
-            border: 1px dashed var(--border-color);
-        }
-
         button[type="submit"] {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--barber-red) 0%, #b91c1c 100%);
+            padding: 15px;
+            background: linear-gradient(135deg, var(--barber-red) 0%, #991b1b 100%);
             color: white;
             border: none;
             border-radius: 10px;
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 6px;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+            -webkit-appearance: none;
         }
 
         .btn-install {
@@ -178,26 +230,51 @@
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             margin-bottom: 16px;
             display: none;
+        }
+
+        .ios-prompt {
+            display: none;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            text-align: center;
+            color: var(--text-main);
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Cabecera Visual con Caramelo de Barbero -->
+        <!-- Cabecera Visual con Caramelo de Barbero Animado 3D -->
         <div class="header-section">
             <span class="calendar-badge">🗓️</span>
-            <div class="barber-pole-icon"></div>
+            
+            <div class="pole-wrapper">
+                <div class="pole-globe"></div>
+                <div class="pole-cap"></div>
+                <div class="pole-glass">
+                    <div class="pole-stripes"></div>
+                </div>
+                <div class="pole-cap bottom"></div>
+            </div>
         </div>
 
         <div class="form-content">
-            <!-- Botón de instalación PWA -->
+            <!-- PWA Android -->
             <button id="btnInstalarApp" class="btn-install">📲 Instalar App de Barbería</button>
+
+            <!-- Guía iPhone -->
+            <div id="iosPrompt" class="ios-prompt">
+                💡 Para instalar en iPhone: Pulsa <strong>Compartir</strong> ⎋ en Safari y selecciona <strong>"Agregar a inicio"</strong> ➕.
+            </div>
 
             <h1>Registrar Barbería</h1>
             <p class="subtitle">Ingresa los datos para crear tu panel de control</p>
@@ -212,16 +289,21 @@
                 <label>Teléfono / WhatsApp de Contacto</label>
                 <input type="tel" id="telefonoBarberia" placeholder="Ej. 3001234567" required>
 
-                <label>Logotipo de la Barbería (Opcional)</label>
-                <input type="file" id="logoBarberia" accept="image/*">
-
-                <button type="submit">Crear Mi Barbería y Entrar</button>
+                <button type="submit" id="btnSubmit">Crear Mi Barbería y Entrar</button>
             </form>
         </div>
     </div>
 
     <script>
-        // Lógica de Instalación PWA
+        // Detección de iPhone
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+        if (isIOS && !isStandalone) {
+            document.getElementById('iosPrompt').style.display = 'block';
+        }
+
+        // PWA Android
         let deferredPrompt = null;
         const btnInstalarApp = document.getElementById('btnInstalarApp');
 
@@ -242,34 +324,33 @@
             }
         });
 
-        // Registrar Service Worker
+        // Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').then(reg => {
-                reg.update();
+                if (reg && reg.update) reg.update();
             }).catch(err => console.log('SW Error:', err));
         }
 
-        // Envío de Formulario
+        // Proceso de Registro
         document.getElementById('formRegistro').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "Registrando...";
 
             const nombre = document.getElementById('nombreBarberia').value.trim();
             const direccion = document.getElementById('direccionBarberia').value.trim();
             const telefono = document.getElementById('telefonoBarberia').value.trim();
-            const logoInput = document.getElementById('logoBarberia');
-
-            const formData = new FormData();
-            formData.append('nombre', nombre);
-            formData.append('direccion', direccion);
-            formData.append('telefono', telefono);
-            if (logoInput.files[0]) {
-                formData.append('logo', logoInput.files[0]);
-            }
 
             try {
                 const res = await fetch('/api/barberias/registrar', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ nombre, direccion, telefono })
                 });
 
                 const data = await res.json();
@@ -279,10 +360,14 @@
                     window.location.href = `/admin.html?id=${data.barberiaId}`;
                 } else {
                     alert(data.error || "Ocurrió un error al registrar la barbería.");
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerText = "Crear Mi Barbería y Entrar";
                 }
             } catch (err) {
                 console.error("Error en registro:", err);
                 alert("Error de conexión con el servidor.");
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "Crear Mi Barbería y Entrar";
             }
         });
     </script>
