@@ -48,7 +48,6 @@ app.use(express.static('.', {
 
 const PORT = process.env.PORT || 3000;
 const IP_HOST = '0.0.0.0'; 
-const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 // Configuración segura de MongoDB Atlas usando variable de entorno o respaldo directo
 const uri = process.env.MONGO_URI || "mongodb+srv://andersoncorreacardona4_db_user:7MInK4js3yK8CUQb@barverinnovationsistem.hd0sfnq.mongodb.net/?retryWrites=true&w=majority&appName=barverinnovationsistem";
@@ -173,15 +172,18 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
 
     await guardarBarberiaEnDB(idUnico, nuevaBarberia);
 
+    // Detección dinámica del dominio actual (funciona en local y en producción en Render)
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+
     res.json({
         success: true,
         message: "¡Barbería registrada con éxito!",
         barberiaId: idUnico,
         id: idUnico,
-        baseUrl: BASE_URL,
-        linkClientes: `${BASE_URL}/?id=${idUnico}`,
-        linkAdmin: `${BASE_URL}/admin.html?id=${idUnico}`,
-        redirectUrl: `${BASE_URL}/admin.html?id=${idUnico}`
+        baseUrl: hostUrl,
+        linkClientes: `${hostUrl}/?id=${idUnico}`,
+        linkAdmin: `${hostUrl}/admin.html?id=${idUnico}`,
+        redirectUrl: `${hostUrl}/admin.html?id=${idUnico}`
     });
 });
 
@@ -361,6 +363,7 @@ app.get('/api/superadmin/barberias', async (req, res) => {
     let barberiasActivas = 0;
     let ingresosTotales = 0;
     const hoy = new Date().toISOString().split('T')[0];
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
 
     const lista = Object.keys(barberias).map(id => {
         let b = barberias[id];
@@ -379,8 +382,8 @@ app.get('/api/superadmin/barberias', async (req, res) => {
             vigenciaHasta: vencimiento,
             suscripcionActivaHasta: vencimiento,
             activa: estadoActivo,
-            linkClientes: `${BASE_URL}/?id=${id}`,
-            linkAdmin: `${BASE_URL}/admin.html?id=${id}`
+            linkClientes: `${hostUrl}/?id=${id}`,
+            linkAdmin: `${hostUrl}/admin.html?id=${id}`
         };
     });
 
@@ -389,7 +392,7 @@ app.get('/api/superadmin/barberias', async (req, res) => {
         totalRegistradas,
         barberiasActivas,
         ingresosTotales,
-        baseUrl: BASE_URL,
+        baseUrl: hostUrl,
         barberias: lista
     });
 });
@@ -462,12 +465,14 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
         });
     }
 
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+
     res.json({
         success: true,
         nombre: barberia.nombre || "Barbería",
         ingresosDia: barberia.ingresosDia || 0,
         ingresosMes: barberia.ingresosMes || 0,
-        baseUrl: BASE_URL,
+        baseUrl: hostUrl,
         suscripcionActivaHasta: vencimiento,
         nequiDueno: barberia.nequiDueno || "",
         tieneClaveBorrado: Boolean(barberia.claveBorrado && barberia.claveBorrado.trim() !== ""),
