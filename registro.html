@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro de Barbería - Barber Innovation</title>
-    <link rel="manifest" href="/manifest.json?v=8">
+    
+    <!-- Iconos forzados para eliminar la lavadora en móviles -->
+    <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/1001/1001371.png?v=11">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1001/1001371.png?v=11">
+    <link rel="manifest" href="/manifest.json?v=11">
+
     <style>
         :root {
             --primary: #3b82f6;
@@ -241,6 +246,12 @@
     </div>
 
     <script>
+        // VALIDACIÓN DE SESIÓN: Si la barbería ya está registrada, redirige directo al admin
+        const existingBarberiaId = localStorage.getItem('barberiaId');
+        if (existingBarberiaId) {
+            window.location.href = `/admin.html?id=${existingBarberiaId}`;
+        }
+
         // Detección segura de iOS
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
@@ -249,27 +260,26 @@
             document.getElementById('iosPrompt').style.display = 'block';
         }
 
-        // Registro de Service Worker diferido para no bloquear la carga inicial en iPhone
+        // Registro de Service Worker
         window.addEventListener('load', () => {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Desactivado temporalmente'));
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Error'));
             }
         });
 
-        // Envío de formulario blindado con control de errores para Render
+        // Envío del formulario
         document.getElementById('formRegistro').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const btnSubmit = document.getElementById('btnSubmit');
             btnSubmit.disabled = true;
-            btnSubmit.innerText = "Conectando con servidor...";
+            btnSubmit.innerText = "Registrando...";
 
             const nombre = document.getElementById('nombreBarberia').value.trim();
             const direccion = document.getElementById('direccionBarberia').value.trim();
             const telefono = document.getElementById('telefonoBarberia').value.trim();
 
             try {
-                // Petición con manejo básico de JSON
                 const res = await fetch('/api/barberias/registrar', {
                     method: 'POST',
                     headers: {
@@ -278,10 +288,6 @@
                     },
                     body: JSON.stringify({ nombre, direccion, telefono })
                 });
-
-                if (!res.ok) {
-                    throw new Error("El servidor tardó en responder o está despertando.");
-                }
 
                 const data = await res.json();
 
@@ -295,7 +301,7 @@
                 }
             } catch (err) {
                 console.error("Error:", err);
-                alert("Render se está reactivando (suele tomar unos segundos la primera vez). Por favor, presiona el botón de nuevo.");
+                alert("Render se está reactivando. Intenta de nuevo en unos segundos.");
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "Crear Mi Barbería y Entrar";
             }
