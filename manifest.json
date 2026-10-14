@@ -1,21 +1,21 @@
 {
   "name": "Barber Innovation System",
   "short_name": "BarberApp",
-  "start_url": "./",
+  "start_url": "/registro.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#070a12",
-  "theme_color": "#3b82f6",
+  "theme_color": "#070a12",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3003/3003984.png",
+      "src": "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=192&auto=format&fit=crop",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3003/3003984.png",
+      "src": "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=512&auto=format&fit=crop",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
