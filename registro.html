@@ -169,9 +169,8 @@
             transform: translateY(-1px);
         }
 
-        /* BOTÓN FLOTANTE PWA (OCULTO POR DEFECTO HASTA QUE EL NAVEGADOR LO PERMITA) */
+        /* BOTÓN FLOTANTE PWA SIEMPRE VISIBLE */
         #btnInstalarApp {
-            display: none;
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -185,6 +184,7 @@
             font-size: 14px;
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
             cursor: pointer;
+            display: flex;
             align-items: center;
             gap: 8px;
         }
@@ -216,8 +216,8 @@
         </form>
     </div>
 
-    <!-- BOTÓN FLOTANTE PWA -->
-    <button id="btnInstalarApp">
+    <!-- BOTÓN FLOTANTE PWA VISIBLE -->
+    <button id="btnInstalarApp" onclick="intentarInstalar()">
         📲 Instalar App
     </button>
 
@@ -268,7 +268,7 @@
         });
 
         // =========================================================
-        // REGISTRO DEL SERVICE WORKER Y GESTIÓN DEL BOTÓN PWA
+        // GESTIÓN DE SERVICE WORKER E INSTALACIÓN MANUAL
         // =========================================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -282,40 +282,31 @@
         }
 
         let deferredPrompt = null;
-        const btnInstalar = document.getElementById('btnInstalarApp');
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevenir que el navegador muestre su banner predeterminado
             e.preventDefault();
-            // Guardar el evento para dispararlo con nuestro botón
             deferredPrompt = e;
-            // Mostrar nuestro botón flotante verde
-            if (btnInstalar) {
-                btnInstalar.style.display = 'flex';
-            }
         });
 
-        if (btnInstalar) {
-            btnInstalar.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        console.log('Usuario aceptó instalar la PWA');
-                    }
-                    deferredPrompt = null;
-                    btnInstalar.style.display = 'none';
+        async function intentarInstalar() {
+            if (deferredPrompt) {
+                // Si el navegador tiene el evento listo, dispara la ventana nativa
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('Usuario aceptó instalar la PWA');
                 }
-            });
-        }
-
-        window.addEventListener('appinstalled', () => {
-            if (btnInstalar) {
-                btnInstalar.style.display = 'none';
+                deferredPrompt = null;
+            } else {
+                // Si el navegador bloqueó el evento automático, mostramos la guía de instalación manual
+                const esIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (esIos) {
+                    alert("📱 Para instalar esta App en tu iPhone:\n\n1. Toca el botón de Compartir ⎋ en la barra de Safari.\n2. Baja y selecciona 'Agregar a inicio' ➕.");
+                } else {
+                    alert("📱 Para instalar esta App:\n\nToca los 3 puntos ⋮ en la esquina superior derecha de tu navegador y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
+                }
             }
-            deferredPrompt = null;
-            console.log('PWA instalada con éxito');
-        });
+        }
     </script>
 </body>
 </html>
