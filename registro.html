@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro de Barbería - Barber Innovation</title>
-    <link rel="manifest" href="/manifest.json?v=7">
+    <link rel="manifest" href="/manifest.json?v=8">
     <style>
         :root {
             --primary: #3b82f6;
@@ -53,10 +53,9 @@
             overflow: hidden;
         }
 
-        /* --- CABECERA ESTÉTICA CON CARAMELO DE BARBERO MEJORADO --- */
         .header-section {
             width: 100%;
-            height: 180px;
+            height: 160px;
             background: radial-gradient(circle at center, #1e293b 0%, #070a12 100%);
             display: -webkit-box;
             display: -webkit-flex;
@@ -71,106 +70,76 @@
             border-bottom: 2px solid var(--border-color);
         }
 
-        /* Soporte del poste de barbero */
         .pole-wrapper {
             position: relative;
+            display: -webkit-box;
+            display: -webkit-flex;
             display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: column;
             flex-direction: column;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
             align-items: center;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
         }
 
-        /* Tapas metálicas cromadas (Arriba y Abajo) */
         .pole-cap {
-            width: 58px;
-            height: 16px;
-            background: linear-gradient(180deg, #f1f5f9 0%, #94a3b8 50%, #475569 100%);
-            border-radius: 8px 8px 3px 3px;
-            border: 1px solid #cbd5e1;
-            z-index: 2;
+            width: 52px;
+            height: 14px;
+            background: #94a3b8;
+            border-radius: 6px 6px 2px 2px;
         }
         .pole-cap.bottom {
-            border-radius: 3px 3px 8px 8px;
+            border-radius: 2px 2px 6px 6px;
         }
 
-        .pole-globe {
-            width: 32px;
-            height: 14px;
-            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-            border-radius: 50% 50% 0 0;
-            margin-bottom: -2px;
-        }
-
-        /* Cilindro de cristal con animación de rotación */
         .pole-glass {
-            width: 46px;
-            height: 110px;
+            width: 40px;
+            height: 90px;
             border-radius: 4px;
             position: relative;
             overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 15px rgba(59, 130, 246, 0.2);
             background: #ffffff;
         }
 
-        /* Franjas giratorias del caramelo */
         .pole-stripes {
             position: absolute;
-            top: -50px;
+            top: -40px;
             left: 0;
             width: 100%;
-            height: 220px;
+            height: 180px;
             background: repeating-linear-gradient(
                 -45deg,
                 var(--barber-red),
-                var(--barber-red) 15px,
-                #ffffff 15px,
-                #ffffff 30px,
-                var(--barber-blue) 30px,
-                var(--barber-blue) 45px,
-                #ffffff 45px,
-                #ffffff 60px
+                var(--barber-red) 12px,
+                #ffffff 12px,
+                #ffffff 24px,
+                var(--barber-blue) 24px,
+                var(--barber-blue) 36px,
+                #ffffff 36px,
+                #ffffff 48px
             );
             animation: rotatePole 3s linear infinite;
-        }
-
-        /* Efecto de brillo de cristal 3D */
-        .pole-glass::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                rgba(0,0,0,0.4) 0%,
-                rgba(255,255,255,0.6) 25%,
-                rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.3) 100%
-            );
-            pointer-events: none;
+            -webkit-animation: rotatePole 3s linear infinite;
         }
 
         @keyframes rotatePole {
             0% { transform: translateY(0); }
-            100% { transform: translateY(42px); }
+            100% { transform: translateY(24px); }
+        }
+        @-webkit-keyframes rotatePole {
+            0% { -webkit-transform: translateY(0); }
+            100% { -webkit-transform: translateY(24px); }
         }
 
-        .calendar-badge {
-            position: absolute;
-            top: 15px;
-            right: 18px;
-            font-size: 22px;
-        }
-
-        /* --- FORMULARIO DE REGISTRO --- */
         .form-content {
             padding: 24px;
         }
 
         h1 {
-            font-size: 22px;
+            font-size: 20px;
             margin-bottom: 4px;
             text-align: center;
             color: #ffffff;
@@ -219,22 +188,7 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 6px;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
             -webkit-appearance: none;
-        }
-
-        .btn-install {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--barber-blue) 0%, #1e3a8a 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 16px;
-            display: none;
         }
 
         .ios-prompt {
@@ -253,12 +207,8 @@
 <body>
 
     <div class="container">
-        <!-- Cabecera Visual con Caramelo de Barbero Animado 3D -->
         <div class="header-section">
-            <span class="calendar-badge">🗓️</span>
-            
             <div class="pole-wrapper">
-                <div class="pole-globe"></div>
                 <div class="pole-cap"></div>
                 <div class="pole-glass">
                     <div class="pole-stripes"></div>
@@ -268,16 +218,12 @@
         </div>
 
         <div class="form-content">
-            <!-- PWA Android -->
-            <button id="btnInstalarApp" class="btn-install">📲 Instalar App de Barbería</button>
-
-            <!-- Guía iPhone -->
             <div id="iosPrompt" class="ios-prompt">
                 💡 Para instalar en iPhone: Pulsa <strong>Compartir</strong> ⎋ en Safari y selecciona <strong>"Agregar a inicio"</strong> ➕.
             </div>
 
             <h1>Registrar Barbería</h1>
-            <p class="subtitle">Ingresa los datos para crear tu panel de control</p>
+            <p class="subtitle">Ingresa los datos para crear tu panel</p>
 
             <form id="formRegistro">
                 <label>Nombre de la Barbería</label>
@@ -295,7 +241,7 @@
     </div>
 
     <script>
-        // Detección de iPhone
+        // Detección segura de iOS
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
@@ -303,47 +249,27 @@
             document.getElementById('iosPrompt').style.display = 'block';
         }
 
-        // PWA Android
-        let deferredPrompt = null;
-        const btnInstalarApp = document.getElementById('btnInstalarApp');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            btnInstalarApp.style.display = 'block';
-        });
-
-        btnInstalarApp.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    btnInstalarApp.style.display = 'none';
-                }
-                deferredPrompt = null;
+        // Registro de Service Worker diferido para no bloquear la carga inicial en iPhone
+        window.addEventListener('load', () => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Desactivado temporalmente'));
             }
         });
 
-        // Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(reg => {
-                if (reg && reg.update) reg.update();
-            }).catch(err => console.log('SW Error:', err));
-        }
-
-        // Proceso de Registro
+        // Envío de formulario blindado con control de errores para Render
         document.getElementById('formRegistro').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const btnSubmit = document.getElementById('btnSubmit');
             btnSubmit.disabled = true;
-            btnSubmit.innerText = "Registrando...";
+            btnSubmit.innerText = "Conectando con servidor...";
 
             const nombre = document.getElementById('nombreBarberia').value.trim();
             const direccion = document.getElementById('direccionBarberia').value.trim();
             const telefono = document.getElementById('telefonoBarberia').value.trim();
 
             try {
+                // Petición con manejo básico de JSON
                 const res = await fetch('/api/barberias/registrar', {
                     method: 'POST',
                     headers: {
@@ -353,19 +279,23 @@
                     body: JSON.stringify({ nombre, direccion, telefono })
                 });
 
+                if (!res.ok) {
+                    throw new Error("El servidor tardó en responder o está despertando.");
+                }
+
                 const data = await res.json();
 
                 if (data.success && data.barberiaId) {
                     localStorage.setItem('barberiaId', data.barberiaId);
                     window.location.href = `/admin.html?id=${data.barberiaId}`;
                 } else {
-                    alert(data.error || "Ocurrió un error al registrar la barbería.");
+                    alert(data.error || "Ocurrió un error al registrar.");
                     btnSubmit.disabled = false;
                     btnSubmit.innerText = "Crear Mi Barbería y Entrar";
                 }
             } catch (err) {
-                console.error("Error en registro:", err);
-                alert("Error de conexión con el servidor.");
+                console.error("Error:", err);
+                alert("Render se está reactivando (suele tomar unos segundos la primera vez). Por favor, presiona el botón de nuevo.");
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "Crear Mi Barbería y Entrar";
             }
