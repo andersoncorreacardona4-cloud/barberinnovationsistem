@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Registro de Barbería - Barber Innovation</title>
 
-    <!-- CONFIGURACIÓN PWA E ICONOS FORZADOS -->
+    <!-- CONFIGURACIÓN PWA E ICONOS -->
     <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/1001/1001371.png?v=BarberIconFix">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1001/1001371.png?v=BarberIconFix">
     <link rel="manifest" href="/manifest.json?v=BarberIconFix">
@@ -169,8 +169,9 @@
             transform: translateY(-1px);
         }
 
-        /* BOTÓN FLOTANTE PWA */
+        /* BOTÓN FLOTANTE PWA (OCULTO POR DEFECTO HASTA QUE EL NAVEGADOR LO PERMITA) */
         #btnInstalarApp {
+            display: none;
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -184,7 +185,6 @@
             font-size: 14px;
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
             cursor: pointer;
-            display: flex;
             align-items: center;
             gap: 8px;
         }
@@ -216,8 +216,8 @@
         </form>
     </div>
 
-    <!-- BOTÓN FLOTANTE PWA (VISIBLE SIEMPRE) -->
-    <button id="btnInstalarApp" onclick="ejecutarInstalacionPWA()">
+    <!-- BOTÓN FLOTANTE PWA -->
+    <button id="btnInstalarApp">
         📲 Instalar App
     </button>
 
@@ -268,50 +268,53 @@
         });
 
         // =========================================================
-        // MANEJO DE INSTALACIÓN PWA
+        // REGISTRO DEL SERVICE WORKER Y GESTIÓN DEL BOTÓN PWA
         // =========================================================
-        let deferredPrompt = null;
-
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js?v=BarberIconFix')
                     .then(reg => {
                         if (reg && reg.update) reg.update();
-                        console.log('Service Worker de Registro activo');
+                        console.log('Service Worker registrado correctamente');
                     })
                     .catch(err => console.error('Error al registrar Service Worker:', err));
             });
         }
 
+        let deferredPrompt = null;
+        const btnInstalar = document.getElementById('btnInstalarApp');
+
         window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevenir que el navegador muestre su banner predeterminado
             e.preventDefault();
+            // Guardar el evento para dispararlo con nuestro botón
             deferredPrompt = e;
+            // Mostrar nuestro botón flotante verde
+            if (btnInstalar) {
+                btnInstalar.style.display = 'flex';
+            }
         });
 
-        async function ejecutarInstalacionPWA() {
-            // Si el navegador capturó el evento automático de Android/Chrome
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('App instalada desde Registro');
-                    document.getElementById('btnInstalarApp').style.display = 'none';
+        if (btnInstalar) {
+            btnInstalar.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        console.log('Usuario aceptó instalar la PWA');
+                    }
+                    deferredPrompt = null;
+                    btnInstalar.style.display = 'none';
                 }
-                deferredPrompt = null;
-            } else {
-                // Detección de iOS / iPhone
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (isIOS) {
-                    alert("📱 Para instalar en iPhone:\n\n1. Toca el botón Compartir ⎋ (abajo en Safari).\n2. Selecciona 'Agregar al inicio' ➕.");
-                } else {
-                    alert("📱 Para instalar en Android/PC:\n\nToca los 3 puntos ⋮ arriba a la derecha en Chrome y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
-                }
-            }
+            });
         }
 
         window.addEventListener('appinstalled', () => {
-            const btn = document.getElementById('btnInstalarApp');
-            if (btn) btn.style.display = 'none';
+            if (btnInstalar) {
+                btnInstalar.style.display = 'none';
+            }
+            deferredPrompt = null;
+            console.log('PWA instalada con éxito');
         });
     </script>
 </body>
