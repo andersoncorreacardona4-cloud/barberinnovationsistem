@@ -2,11 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agendar Cita - Barbería</title>
+
+    <!-- CONFIGURACIÓN PWA E ICONOS FORZADOS PARA ELIMINAR CACHÉ -->
+    <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/1001/1001371.png?v=BarberIconFix">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1001/1001371.png?v=BarberIconFix">
+    <link rel="manifest" href="/manifest.json?v=BarberIconFix">
     
-    <!-- CONFIGURACIÓN OBLIGATORIA PWA -->
-    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#3b82f6">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,10 +31,12 @@
         }
 
         * {
+            -webkit-box-sizing: border-box;
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             max-width: 100%;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -135,6 +140,7 @@
             background-color: var(--bg-input);
             color: var(--text-main);
             transition: all 0.2s ease;
+            -webkit-appearance: none;
         }
 
         input:focus, select:focus {
@@ -156,6 +162,7 @@
             transition: all 0.2s ease;
             margin-top: 20px;
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+            -webkit-appearance: none;
         }
 
         button:hover {
@@ -226,7 +233,7 @@
             <label for="inputFecha">Fecha de Preferencia</label>
             <input type="date" id="inputFecha" required>
 
-            <button type="submit">📅 Confirmar y Agendar Cita</button>
+            <button type="submit" id="btnSubmitForm">📅 Confirmar y Agendar Cita</button>
         </form>
     </div>
 
@@ -236,12 +243,21 @@
     </button>
 
     <script>
+        // =========================================================
+        // REDIRECCIÓN AUTOMÁTICA SI YA EXISTE UN REGISTRO GUARDADO
+        // =========================================================
+        const existingBarberiaId = localStorage.getItem('barberiaId');
+        
+        // Obtener el id de la URL
         const urlParams = new URLSearchParams(window.location.search);
-        const barberiaId = urlParams.get('id');
+        let barberiaId = urlParams.get('id');
 
-        if (!barberiaId) {
-            alert("No se ha especificado ninguna barbería.");
-            document.body.innerHTML = '<h2 style="text-align:center; margin-top:20vh; color:#fff;">Error: Enlace de barbería inválido.</h2>';
+        // Si no hay id en la URL pero sí en el almacenamiento, redirigir directo al admin
+        if (!barberiaId && existingBarberiaId) {
+            window.location.replace(`/admin.html?id=${existingBarberiaId}`);
+        } else if (!barberiaId && !existingBarberiaId) {
+            // Si tampoco hay id guardado, sugerir registro
+            window.location.replace('/registro.html');
         } else {
             cargarDatosCliente();
         }
@@ -281,6 +297,10 @@
         document.getElementById('formAgendarCita').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const btnSubmit = document.getElementById('btnSubmitForm');
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "Enviando cita...";
+
             const clienteNombre = document.getElementById('clienteNombre').value.trim();
             const clienteTelefono = document.getElementById('clienteTelefono').value.trim();
             const servicio = document.getElementById('selectServicio').value;
@@ -305,6 +325,9 @@
             } catch (err) {
                 console.error("Error al enviar cita:", err);
                 alert("Error de conexión con el servidor.");
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "📅 Confirmar y Agendar Cita";
             }
         });
 
@@ -313,8 +336,11 @@
         // ==========================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+                navigator.serviceWorker.register('/sw.js?v=BarberIconFix')
+                    .then(reg => {
+                        if (reg && reg.update) reg.update();
+                        console.log('Service Worker actualizado con éxito');
+                    })
                     .catch(err => console.error('Error al registrar Service Worker:', err));
             });
         }
