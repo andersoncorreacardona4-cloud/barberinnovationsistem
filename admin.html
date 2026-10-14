@@ -510,11 +510,10 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const barberiaId = urlParams.get('id');
+        const barberiaId = localStorage.getItem('barberiaId') || urlParams.get('id');
 
         if (!barberiaId) {
-            alert("No se ha especificado ninguna barbería en el enlace.");
-            window.location.href = '/';
+            window.location.replace('/registro.html');
         }
 
         let datosLocalesAdmin = null;
@@ -587,10 +586,19 @@
         async function cargarDatosAdmin() {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
+
+                // SI LA BARBERÍA FUE ELIMINADA DESDE EL SUPERADMIN (404)
+                if (res.status === 404) {
+                    localStorage.removeItem('barberiaId');
+                    window.location.replace('/registro.html');
+                    return;
+                }
+
                 const data = await res.json();
 
                 if (!data.success) {
-                    alert(data.error || "Error al cargar datos.");
+                    localStorage.removeItem('barberiaId');
+                    window.location.replace('/registro.html');
                     return;
                 }
 
