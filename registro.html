@@ -169,9 +169,8 @@
             transform: translateY(-1px);
         }
 
-        /* BOTÓN FLOTANTE INSTALAR PWA */
+        /* BOTÓN FLOTANTE PWA */
         #btnInstalarApp {
-            display: none;
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -179,11 +178,13 @@
             background: linear-gradient(135deg, #10b981 0%, #047857 100%);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 14px 22px;
             border-radius: 30px;
             font-weight: bold;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            font-size: 14px;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
             cursor: pointer;
+            display: flex;
             align-items: center;
             gap: 8px;
         }
@@ -215,8 +216,8 @@
         </form>
     </div>
 
-    <!-- BOTÓN FLOTANTE PWA -->
-    <button id="btnInstalarApp">
+    <!-- BOTÓN FLOTANTE PWA (VISIBLE SIEMPRE) -->
+    <button id="btnInstalarApp" onclick="ejecutarInstalacionPWA()">
         📲 Instalar App
     </button>
 
@@ -250,5 +251,68 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    // Guardar ID en almacenamiento local para no pedir registro de nuevo
-                    localStorage.setItem('barberiaId', data.barberiaId
+                    localStorage.setItem('barberiaId', data.barberiaId);
+                    alert("¡Barbería registrada con éxito!");
+                    window.location.replace(`/admin.html?id=${data.barberiaId}`);
+                } else {
+                    alert(data.error || "No se pudo completar el registro.");
+                    btn.disabled = false;
+                    btn.innerText = "💈 Registrar mi Barbería";
+                }
+            } catch (err) {
+                console.error("Error en registro:", err);
+                alert("Error de conexión con el servidor.");
+                btn.disabled = false;
+                btn.innerText = "💈 Registrar mi Barbería";
+            }
+        });
+
+        // =========================================================
+        // MANEJO DE INSTALACIÓN PWA
+        // =========================================================
+        let deferredPrompt = null;
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js?v=BarberIconFix')
+                    .then(reg => {
+                        if (reg && reg.update) reg.update();
+                        console.log('Service Worker de Registro activo');
+                    })
+                    .catch(err => console.error('Error al registrar Service Worker:', err));
+            });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        async function ejecutarInstalacionPWA() {
+            // Si el navegador capturó el evento automático de Android/Chrome
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('App instalada desde Registro');
+                    document.getElementById('btnInstalarApp').style.display = 'none';
+                }
+                deferredPrompt = null;
+            } else {
+                // Detección de iOS / iPhone
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) {
+                    alert("📱 Para instalar en iPhone:\n\n1. Toca el botón Compartir ⎋ (abajo en Safari).\n2. Selecciona 'Agregar al inicio' ➕.");
+                } else {
+                    alert("📱 Para instalar en Android/PC:\n\nToca los 3 puntos ⋮ arriba a la derecha en Chrome y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
+                }
+            }
+        }
+
+        window.addEventListener('appinstalled', () => {
+            const btn = document.getElementById('btnInstalarApp');
+            if (btn) btn.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
