@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agendar Cita - Barbería</title>
 
-    <!-- MANIFIESTO EXCLUSIVO PARA CLIENTES -->
-    <link rel="manifest" href="/manifest-cliente.json">
+    <!-- MANIFIESTO DINÁMICO PARA CLIENTES -->
+    <link rel="manifest" id="manifestLink" href="/manifest.json?tipo=cliente">
 
     <link rel="icon" type="image/png" href="/icon-192.png">
     <link rel="apple-touch-icon" href="/icon-192.png">
@@ -29,13 +29,7 @@
             --accent-cyan: #06b6d4;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            max-width: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; max-width: 100%; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -68,83 +62,36 @@
         }
 
         .barber-logo-icon {
-            width: 65px;
-            height: 65px;
+            width: 65px; height: 65px;
             background: linear-gradient(135deg, #1e40af 0%, #0e7490 100%);
             border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 32px;
             box-shadow: 0 8px 20px rgba(14, 116, 144, 0.4);
             border: 2px solid rgba(6, 182, 212, 0.4);
             margin: 0 auto 12px auto;
         }
 
-        h1 {
-            font-size: 22px;
-            color: #fff;
-            text-align: center;
-            margin-bottom: 4px;
-        }
+        h1 { font-size: 22px; color: #fff; text-align: center; margin-bottom: 4px; }
+        .subtitle { font-size: 13px; color: var(--text-muted); text-align: center; }
 
-        .subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-            display: block;
-            margin-top: 12px;
-            margin-bottom: 4px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 14px;
-            background-color: var(--bg-input);
-            color: var(--text-main);
-        }
-
+        label { font-size: 12px; color: var(--text-muted); font-weight: 600; display: block; margin-top: 12px; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 14px; background-color: var(--bg-input); color: var(--text-main); }
+        
         button[type="submit"] {
-            width: 100%;
-            padding: 14px;
+            width: 100%; padding: 14px;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 22px;
-            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+            color: white; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            margin-top: 22px; box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
         }
 
-        /* BOTÓN FLOTANTE DE INSTALACIÓN GARANTIZADO */
         #btnInstalarAppCliente {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
+            position: fixed; bottom: 20px; right: 20px; z-index: 9999;
             background: linear-gradient(135deg, #10b981 0%, #047857 100%);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 13px;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: white; border: none; padding: 12px 20px; border-radius: 30px;
+            font-weight: bold; font-size: 13px; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
         }
     </style>
 </head>
@@ -181,13 +128,11 @@
         </form>
     </div>
 
-    <!-- BOTÓN FLOTANTE PARA CLIENTES -->
     <button id="btnInstalarAppCliente" onclick="intentarInstalarCliente()">
         📲 Instalar App Barbería
     </button>
 
     <script>
-        // RECUPERACIÓN Y PERSISTENCIA DE ID PARA PWA DE CLIENTES
         const urlParams = new URLSearchParams(window.location.search);
         let barberiaId = urlParams.get('id');
 
@@ -212,7 +157,7 @@
             window.history.replaceState({}, '', `/cliente.html?id=${barberiaId}`);
         }
 
-        // CARGA DE DATOS DE LA BARBERÍA
+        // Cargar datos de la barbería
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}`);
@@ -240,7 +185,7 @@
             }
         });
 
-        // ENVÍO DE CITA
+        // Enviar cita
         document.getElementById('formAgendarCita').addEventListener('submit', async (e) => {
             e.preventDefault();
             const clienteNombre = document.getElementById('clienteNombre').value.trim();
@@ -268,12 +213,10 @@
             }
         });
 
-        // REGISTRO DE SERVICE WORKER
+        // Service Worker e Instalación PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker Cliente activo:', reg.scope))
-                    .catch(err => console.error('Error Service Worker:', err));
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log(err));
             });
         }
 
@@ -291,7 +234,6 @@
                 deferredPromptCliente.prompt();
                 const { outcome } = await deferredPromptCliente.userChoice;
                 if (outcome === 'accepted') {
-                    console.log('Cliente instaló la PWA');
                     if (btnInstalar) btnInstalar.style.display = 'none';
                 }
                 deferredPromptCliente = null;
@@ -303,11 +245,6 @@
                     alert("📱 Para instalar la App de esta Barbería:\n\nToca los 3 puntos ⋮ arriba a la derecha en tu navegador y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
                 }
             }
-        }
-
-        // Ocultar botón si ya se está ejecutando como PWA instalada
-        if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
-            if (btnInstalar) btnInstalar.style.display = 'none';
         }
     </script>
 </body>
