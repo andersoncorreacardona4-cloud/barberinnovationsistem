@@ -13,8 +13,7 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/registro.html",
   "display": "standalone",
   "background_color": "#070a12",
   "theme_color": "#070a12",
