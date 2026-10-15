@@ -68,22 +68,22 @@
         });
 
         let deferredPromptAdmin = null;
-        const btnAdmin = document.getElementById('btnInstalarAppAdmin');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPromptAdmin = e;
-            if (btnAdmin) btnAdmin.style.display = 'flex';
         });
 
         async function intentarInstalarAdmin() {
             if (deferredPromptAdmin) {
                 deferredPromptAdmin.prompt();
                 const { outcome } = await deferredPromptAdmin.userChoice;
-                if (outcome === 'accepted') if (btnAdmin) btnAdmin.style.display = 'none';
+                if (outcome === 'accepted') {
+                    document.getElementById('btnInstalarAppAdmin').style.display = 'none';
+                }
                 deferredPromptAdmin = null;
             } else {
-                alert("📱 Para instalar la App Admin:\nToca los 3 puntos ⋮ en tu navegador y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
+                alert("📱 Para instalar la App Admin:\n\n1. Toca los 3 puntos (⋮) arriba a la derecha en tu navegador.\n2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
             }
         }
     </script>
