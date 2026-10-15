@@ -594,4 +594,154 @@ app.post('/api/barberias/:id/servicios', async (req, res) => {
     const { nombre, precio } = req.body;
     let barberias = await leerDB();
     if (!barberias[id]) barberias[id] = { idUnico: id, servicios: [], inventario: [], barberos: [], citas: [] };
-    if (!barberias[id].
+    if (!barberias[id].servicios) barberias[id].servicios = [];
+    barberias[id].servicios.push({ nombre, precio: Number(precio) });
+    await guardarBarberiaEnDB(id, barberias[id]);
+    res.json({ success: true, servicios: barberias[id].servicios });
+});
+
+app.delete('/api/barberias/:id/servicios/:index', async (req, res) => {
+    const { id, index } = req.params;
+    let barberias = await leerDB();
+    if (barberias[id] && barberias[id].servicios) {
+        barberias[id].servicios.splice(Number(index), 1);
+        await guardarBarberiaEnDB(id, barberias[id]);
+        return res.json({ success: true });
+    }
+    res.status(404).json({ error: "No encontrado" });
+});
+
+app.post('/api/barberias/:id/barberos', async (req, res) => {
+    const { id } = req.params;
+    const { nombre, especialidad } = req.body;
+    let barberias = await leerDB();
+    if (!barberias[id]) barberias[id] = { idUnico: id, servicios: [], inventario: [], barberos: [], citas: [] };
+    if (!barberias[id].barberos) barberias[id].barberos = [];
+    const nuevoBarbero = { id: 'barb_' + Date.now(), nombre, especialidad: especialidad || 'General' };
+    barberias[id].barberos.push(nuevoBarbero);
+    await guardarBarberiaEnDB(id, barberias[id]);
+    res.json({ success: true, barbero: nuevoBarbero });
+});
+
+app.delete('/api/barberias/:id/barberos/:index', async (req, res) => {
+    const { id, index } = req.params;
+    let barberias = await leerDB();
+    if (barberias[id] && barberias[id].barberos) {
+        barberias[id].barberos.splice(Number(index), 1);
+        await guardarBarberiaEnDB(id, barberias[id]);
+        return res.json({ success: true });
+    }
+    res.status(404).json({ error: "No encontrado" });
+});
+
+app.patch('/api/barberias/:id/citas/:index/estado', async (req, res) => {
+    const { id, index } = req.params;
+    const { estado } = req.body;
+    let barberias = await leerDB();
+    
+    if (barberias[id] && barberias[id].citas && barberias[id].citas[index]) {
+        const barberia = barberias[id];
+        const cita = barberia.citas[index];
+        const estadoAnterior = cita.estado;
+
+        if (barberia.ingresosDia === undefined) barberia.ingresosDia = 0;
+        if (barberia.ingresosMes === undefined) barberia.ingresosMes = 0;
+
+        if ((estado === 'Atendido' || estado === 'Completada') && 
+            estadoAnterior !== 'Atendido' && estadoAnterior !== 'Completada') {
+            
+            const nombreServicioCita = cita.servicio.split('-')[0].toLowerCase().trim();
+            const servicioEncontrado = (barberia.servicios || []).find(
+                s => s.nombre.toLowerCase().trim() === nombreServicioCita ||
+                     cita.servicio.toLowerCase().includes(s.nombre.toLowerCase())
+            );
+            const precioServicio = servicioEncontrado ? Number(servicioEncontrado.precio) : 0;
+
+            barberia.ingresosDia = Number(barberia.ingresosDia) + precioServicio;
+            barberia.ingresosMes = Number(barberia.ingresosMes) + precioServicio;
+        }
+
+        cita.estado = estado;
+        await guardarBarberiaEnDB(id, barberia);
+
+        return res.json({ 
+            success: true, 
+            ingresosDia: barberia.ingresosDia, 
+            ingresosMes: barberia.ingresosMes 
+        });
+    }
+    res.status(404).json({ error: "Cita no encontrada" });
+});
+
+app.delete('/api/barberias/:id/citas/:index', async (req, res) => {
+    const { id, index } = req.params;
+    let barberias = await leerDB();
+    if (barberias[id] && barberias[id].citas) {
+        barberias[id].citas.splice(Number(index), 1);
+        await guardarBarberiaEnDB(id, barberias[id]);
+        return res.json({ success: true });
+    }
+    res.status(404).json({ error: "No encontrado" });
+});
+
+app.get('/api/barberias/:id', async (req, res) => {
+    let barberias = await leerDB();
+    const { id } = req.params;
+    const barberia = barberias[id];
+
+    if (!barberia) {
+        return res.status(404).json({ success: false, error: "Barbería no encontrada" });
+    }
+
+    res.json({
+        success: true,
+        nombre: barberia.nombre || "Barbería",
+        direccion: barberia.direccion || "",
+        telefono: barberia.telefono || "",
+        servicios: barberia.servicios || [],
+        barberos: barberia.barberos || []
+    });
+});
+
+app.post('/api/barberias/:id/citas', async (req, res) => {
+    const { id } = req.params;
+    const { clienteNombre, clienteTelefono, servicio, barbero, fechaHora } = req.body;
+
+    let barberias = await leerDB();
+    if (!barberias[id]) {
+        return res.status(404).json({ success: false, error: "Barbería no encontrada" });
+    }
+
+    if (!clienteNombre || !servicio) {
+        return res.status(400).json({ success: false, error: "Faltan datos obligatorios" });
+    }
+
+    if (!barberias[id].citas) {
+        barberias[id].citas = [];
+    }
+
+    const nuevaCita = {
+        id: 'cita_' + Date.now(),
+        clienteNombre,
+        clienteTelefono: clienteTelefono || "",
+        servicio,
+        barbero: barbero || "General",
+        fechaHora: fechaHora || new Date().toLocaleDateString(),
+        estado: "Pendiente",
+        creadaEn: new Date().toISOString()
+    };
+
+    barberias[id].citas.push(nuevaCita);
+    await guardarBarberiaEnDB(id, barberias[id]);
+
+    res.json({ success: true, message: "¡Cita agendada con éxito!", cita: nuevaCita });
+});
+
+async function iniciarServidor() {
+    await conectarDB();
+    app.listen(PORT, IP_HOST, () => {
+        console.log(`> Servidor corriendo correctamente en el puerto ${PORT}`);
+    });
+}
+
+iniciarServidor();
