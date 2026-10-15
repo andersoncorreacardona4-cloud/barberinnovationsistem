@@ -13,7 +13,14 @@ app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', true);
 
 // ==========================================
-// RUTAS EXPLÍCITAS PARA LOS MANIFIESTOS
+// RUTA DE MONITOREO PARA QUE RENDER NO SE DUERMA
+// ==========================================
+app.get('/ping', (req, res) => {
+    res.status(200).send('Servidor activo y despierto');
+});
+
+// ==========================================
+// MANIFIESTOS (ARCHIVOS FÍSICOS SEPARADOS)
 // ==========================================
 app.get('/manifest.json', (req, res) => {
     res.sendFile(path.join(__dirname, 'manifest.json'));
@@ -23,7 +30,9 @@ app.get('/manifest-cliente.json', (req, res) => {
     res.sendFile(path.join(__dirname, 'manifest-cliente.json'));
 });
 
-// VISTAS Y ARCHIVOS ESTÁTICOS
+// ==========================================
+// RUTAS DE VISTAS HTML
+// ==========================================
 app.get('/registro.html', (req, res) => res.sendFile(path.join(__dirname, 'registro.html')));
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/superadmin.html', (req, res) => res.sendFile(path.join(__dirname, 'superadmin.html')));
@@ -69,17 +78,22 @@ async function guardarBarberiaEnDB(idUnico, data) {
     }
 }
 
-// ROUTING PRINCIPAL
+// ==========================================
+// ROUTING PRINCIPAL (CORREGIDO PARA EVITAR BUCLES)
+// ==========================================
 app.get('/', (req, res) => {
     const { id } = req.query;
-    if (id) {
+    // Si viene con un ID de cliente, carga el panel de citas
+    if (id && req.url.includes('?id=')) {
         return res.sendFile(path.join(__dirname, 'cliente.html'));
-    } else {
-        return res.sendFile(path.join(__dirname, 'registro.html'));
     }
+    // Por defecto, la raíz muestra la página de registro de dueños
+    return res.sendFile(path.join(__dirname, 'registro.html'));
 });
 
-// APIS
+// ==========================================
+// APIS DE REGISTRO Y GESTIÓN
+// ==========================================
 app.post('/api/barberias', async (req, res) => {
     let { nombre, direccion, telefono, pin } = req.body;
     if (!nombre) return res.status(400).json({ success: false, error: "Nombre obligatorio" });
@@ -94,12 +108,17 @@ app.post('/api/barberias', async (req, res) => {
     let fechaPrueba = hoy.toISOString().split('T')[0];
 
     let nuevaBarberia = {
-        idUnico, nombre, direccion: direccion || "", telefono: telefono || "",
+        idUnico, 
+        nombre, 
+        direccion: direccion || "", 
+        telefono: telefono || "",
         pin: String(pin || "1234").trim(),
         suscripcionActivaHasta: fechaPrueba,
         activa: true,
         servicios: [{ nombre: "corte clásico", precio: 20000 }],
-        barberos: [], citas: [], inventario: []
+        barberos: [], 
+        citas: [], 
+        inventario: []
     };
 
     await guardarBarberiaEnDB(idUnico, nuevaBarberia);
