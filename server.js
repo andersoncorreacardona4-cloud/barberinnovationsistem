@@ -18,18 +18,44 @@ app.use((req, res, next) => {
     next();
 });
 
-// ==========================================
-// RUTAS EXPLÍCITAS PARA ARCHIVOS PWA Y VISTAS
-// ==========================================
+// =========================================================
+// RUTAS PARA EL MANIFIESTO UNIFICADO (DESDE UN SOLO MANIFEST.JSON)
+// =========================================================
 app.get('/manifest.json', (req, res) => {
-    const ruta = path.join(__dirname, 'manifest.json');
-    if (fs.existsSync(ruta)) {
+    try {
+        const filePath = path.join(__dirname, 'manifest.json');
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: "manifest.json no encontrado" });
+        }
+        const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         res.setHeader('Content-Type', 'application/json');
-        return res.sendFile(ruta);
+        // Entrega la configuración de dueños/registro
+        res.json(fileContent.barberos_admin);
+    } catch (err) {
+        console.error("Error al leer manifest.json:", err);
+        res.status(500).json({ error: "Error al leer manifest.json" });
     }
-    res.status(404).json({ error: "manifest.json no encontrado" });
 });
 
+app.get('/manifest-cliente.json', (req, res) => {
+    try {
+        const filePath = path.join(__dirname, 'manifest.json');
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: "manifest.json no encontrado" });
+        }
+        const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        res.setHeader('Content-Type', 'application/json');
+        // Entrega la configuración exclusiva para los clientes que agendan
+        res.json(fileContent.clientes);
+    } catch (err) {
+        console.error("Error al leer manifest-cliente.json:", err);
+        res.status(500).json({ error: "Error al leer manifest-cliente.json" });
+    }
+});
+
+// ==========================================
+// RUTAS EXPLÍCITAS PARA SERVICE WORKER Y VISTAS
+// ==========================================
 app.get('/sw.js', (req, res) => {
     const ruta = path.join(__dirname, 'sw.js');
     if (fs.existsSync(ruta)) {
@@ -73,7 +99,6 @@ app.use(express.static('.', {
 const PORT = process.env.PORT || 3000;
 const IP_HOST = '0.0.0.0'; 
 
-// Configuración segura de MongoDB Atlas usando variable de entorno o respaldo directo
 const uri = process.env.MONGO_URI || "mongodb+srv://andersoncorreacardona4_db_user:7MInK4js3yK8CUQb@barverinnovationsistem.hd0sfnq.mongodb.net/?retryWrites=true&w=majority&appName=barverinnovationsistem";
 
 const client = new MongoClient(uri, {
@@ -143,13 +168,12 @@ async function eliminarBarberiaDeDB(idUnico) {
     }
 }
 
+// ROUTING PRINCIPAL: GESTIÓN DE ENLACES DE CLIENTES VS REGISTRO DE DUEÑOS
 app.get('/', (req, res) => {
     const { id } = req.query;
     if (id) {
-        const rutaCliente = path.join(__dirname, 'cliente.html'); 
+        const rutaCliente = path.join(__dirname, 'cliente.html');
         if (fs.existsSync(rutaCliente)) return res.sendFile(rutaCliente);
-        const rutaIndex = path.join(__dirname, 'index.html');
-        if (fs.existsSync(rutaIndex)) return res.sendFile(rutaIndex);
     } else {
         const rutaRegistro = path.join(__dirname, 'registro.html');
         if (fs.existsSync(rutaRegistro)) return res.sendFile(rutaRegistro);
