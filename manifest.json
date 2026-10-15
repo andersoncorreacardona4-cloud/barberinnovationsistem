@@ -1,21 +1,46 @@
 {
-  "short_name": "AgendarCita",
-  "name": "Reserva tu Cita - Barbería",
-  "icons": [
-    {
-      "src": "/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "/icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": "/cliente.html",
-  "display": "standalone",
-  "background_color": "#070a12",
-  "theme_color": "#070a12",
-  "orientation": "portrait"
+  "barberos_admin": {
+    "short_name": "BarberAdmin",
+    "name": "Barber Innovation System - Admin",
+    "icons": [
+      {
+        "src": "/icon-192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/icon-512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "/registro.html",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#070a12",
+    "theme_color": "#070a12",
+    "orientation": "portrait"
+  },
+  "clientes": {
+    "short_name": "AgendarCita",
+    "name": "Reserva tu Cita - Barbería",
+    "icons": [
+      {
+        "src": "/icon-192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/icon-512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "/cliente.html",
+    "scope": "/cliente.html",
+    "display": "standalone",
+    "background_color": "#070a12",
+    "theme_color": "#070a12",
+    "orientation": "portrait"
+  }
 }
