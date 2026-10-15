@@ -1,6 +1,6 @@
 {
-  "short_name": "BarberApp",
-  "name": "Barber Innovation System",
+  "short_name": "AgendarCita",
+  "name": "Reserva tu Cita - Barbería",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -13,7 +13,7 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "/registro.html",
+  "start_url": "/cliente.html",
   "display": "standalone",
   "background_color": "#070a12",
   "theme_color": "#070a12",
