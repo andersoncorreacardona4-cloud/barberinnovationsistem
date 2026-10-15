@@ -8,7 +8,7 @@
     <!-- CONFIGURACIÓN PWA E ICONOS -->
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="apple-touch-icon" href="/icon-192.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest-cliente.json">
     
     <meta name="theme-color" content="#070a12">
     <meta name="mobile-web-app-capable" content="yes">
@@ -183,25 +183,32 @@
     </button>
 
     <script>
+        // RECUPERACIÓN Y GESTIÓN AUTOMÁTICA DEL ID DE LA BARBERÍA
         const urlParams = new URLSearchParams(window.location.search);
         let barberiaId = urlParams.get('id');
 
-        if (!barberiaId) {
-            barberiaId = localStorage.getItem('clienteBarberiaId');
-        } else {
+        if (barberiaId) {
             localStorage.setItem('clienteBarberiaId', barberiaId);
+        } else {
+            barberiaId = localStorage.getItem('clienteBarberiaId');
         }
 
         if (!barberiaId) {
             document.body.innerHTML = `
-                <div style="text-align:center; color:white; padding:50px; font-family:sans-serif;">
-                    <h2>⚠️ Enlace no válido</h2>
-                    <p>Por favor, ingresa a través del enlace de WhatsApp que te compartió tu barbería.</p>
+                <div style="text-align:center; color:white; padding:60px 20px; font-family:sans-serif;">
+                    <div style="font-size:50px; margin-bottom:15px;">💈</div>
+                    <h2>⚠️ Falta el enlace de la barbería</h2>
+                    <p style="color:#94a3b8; margin-top:10px;">Por favor, ingresa mediante el enlace de WhatsApp que te compartió tu barbero para agendar tu cita.</p>
                 </div>
             `;
-            throw new Error("Barbería no especificada.");
+            throw new Error("ID de cliente no encontrado.");
         }
 
+        if (!urlParams.get('id') && barberiaId) {
+            window.history.replaceState({}, '', `/cliente.html?id=${barberiaId}`);
+        }
+
+        // CARGAR DATOS DE LA BARBERÍA EN EL FORMULARIO
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}`);
@@ -231,6 +238,7 @@
             }
         });
 
+        // ENVIAR NUEVA CITA
         document.getElementById('formAgendarCita').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -260,6 +268,7 @@
             }
         });
 
+        // REGISTRO DE SERVICE WORKER
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
@@ -280,7 +289,7 @@
                 deferredPromptCliente.prompt();
                 const { outcome } = await deferredPromptCliente.userChoice;
                 if (outcome === 'accepted') {
-                    console.log('Cliente instaló la app');
+                    console.log('Cliente instaló la PWA');
                 }
                 deferredPromptCliente = null;
             } else {
