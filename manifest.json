@@ -37,7 +37,7 @@
       }
     ],
     "start_url": "/cliente.html",
-    "scope": "/cliente.html",
+    "scope": "/",
     "display": "standalone",
     "background_color": "#070a12",
     "theme_color": "#070a12",
