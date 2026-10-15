@@ -13,33 +13,29 @@ app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', true);
 
 // =========================================================
-// RUTAS PARA SEPARAR LOS MANIFIESTOS DEL JSON COMBINADO
+// RUTA DINÁMICA DE MANIFIESTOS DESDE EL ÚNICO MANIFEST.JSON
 // =========================================================
 app.get('/manifest.json', (req, res) => {
     try {
         const filePath = path.join(__dirname, 'manifest.json');
         const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         res.setHeader('Content-Type', 'application/json');
+        
+        // Si la petición viene rotulada como cliente, entrega la sección clientes
+        if (req.query.tipo === 'cliente') {
+            return res.json(fileContent.clientes);
+        }
+        // Por defecto entrega la sección de administración para barberos
         res.json(fileContent.barberos_admin);
     } catch (err) {
         res.status(500).json({ error: "Error al leer manifest.json" });
     }
 });
 
-app.get('/manifest-cliente.json', (req, res) => {
-    try {
-        const filePath = path.join(__dirname, 'manifest.json');
-        const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        res.setHeader('Content-Type', 'application/json');
-        res.json(fileContent.clientes);
-    } catch (err) {
-        res.status(500).json({ error: "Error al leer manifest-cliente.json" });
-    }
-});
-
 // VISTAS Y ARCHIVOS ESTÁTICOS
 app.get('/registro.html', (req, res) => res.sendFile(path.join(__dirname, 'registro.html')));
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/superadmin.html', (req, res) => res.sendFile(path.join(__dirname, 'superadmin.html')));
 app.get('/cliente.html', (req, res) => res.sendFile(path.join(__dirname, 'cliente.html')));
 
 app.use(express.static('.', { index: false }));
@@ -92,7 +88,7 @@ app.get('/', (req, res) => {
     }
 });
 
-// APIS
+// APIS DE REGISTRO Y SUPERADMIN RESTAURADAS
 app.post('/api/barberias', async (req, res) => {
     let { nombre, direccion, telefono, pin } = req.body;
     if (!nombre) return res.status(400).json({ success: false, error: "Nombre obligatorio" });
@@ -102,15 +98,55 @@ app.post('/api/barberias', async (req, res) => {
     let idUnico = idBase, contador = 1;
     while (barberias[idUnico]) { idUnico = `${idBase}-${contador}`; contador++; }
 
+    let hoy = new Date();
+    hoy.setDate(hoy.getDate() + 30);
+    let fechaPrueba = hoy.toISOString().split('T')[0];
+
     let nuevaBarberia = {
         idUnico, nombre, direccion: direccion || "", telefono: telefono || "",
         pin: String(pin || "1234").trim(),
+        suscripcionActivaHasta: fechaPrueba,
+        activa: true,
         servicios: [{ nombre: "corte clásico", precio: 20000 }],
-        barberos: [], citas: []
+        barberos: [], citas: [], inventario: []
     };
 
     await guardarBarberiaEnDB(idUnico, nuevaBarberia);
     res.json({ success: true, barberiaId: idUnico });
+});
+
+app.get('/api/superadmin/barberias', async (req, res) => {
+    let barberias = await leerDB();
+    let totalRegistradas = Object.keys(barberias).length;
+    let barberiasActivas = 0;
+    const hoy = new Date().toISOString().split('T')[0];
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+
+    const lista = Object.keys(barberias).map(id => {
+        let b = barberias[id];
+        let vencimiento = b.suscripcionActivaHasta || b.fechaVencimiento || hoy;
+        let porFecha = vencimiento >= hoy;
+        let estadoActivo = (b.activa !== undefined) ? (b.activa && porFecha) : porFecha;
+
+        if (estadoActivo) barberiasActivas++;
+
+        return {
+            id: id,
+            nombre: b.nombre || id,
+            pin: b.pin || "1234",
+            suscripcionActivaHasta: vencimiento,
+            activa: estadoActivo,
+            linkClientes: `${hostUrl}/?id=${id}`,
+            linkAdmin: `${hostUrl}/admin.html?id=${id}`
+        };
+    });
+
+    res.json({
+        success: true,
+        totalRegistradas,
+        barberiasActivas,
+        barberias: lista
+    });
 });
 
 app.get('/api/barberias/:id', async (req, res) => {
