@@ -3,242 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro y Administración - Barber Innovation System</title>
+    <title>Registro y Administración - Barbería</title>
 
-    <!-- MANIFIESTO EXCLUSIVO PARA DUEÑOS Y BARBEROS -->
     <link rel="manifest" href="/manifest.json">
-
     <link rel="icon" type="image/png" href="/icon-192.png">
     <link rel="apple-touch-icon" href="/icon-192.png">
-    
     <meta name="theme-color" content="#070a12">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BarberAdmin">
 
     <style>
-        :root {
-            --primary: #3b82f6;
-            --bg-dark: #070a12;
-            --bg-card: #0f172a;
-            --bg-input: #1e293b;
-            --border-color: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-cyan: #06b6d4;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            max-width: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            background: rgba(15, 23, 42, 0.95);
-            padding: 30px;
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            margin-bottom: 20px;
-        }
-
-        .header-panel {
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 18px;
-            margin-bottom: 22px;
-        }
-
-        .barber-logo-icon {
-            width: 65px;
-            height: 65px;
-            background: linear-gradient(135deg, #1e40af 0%, #0e7490 100%);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            box-shadow: 0 8px 20px rgba(14, 116, 144, 0.4);
-            border: 2px solid rgba(6, 182, 212, 0.4);
-            margin: 0 auto 12px auto;
-        }
-
-        h1 {
-            font-size: 22px;
-            color: #fff;
-            text-align: center;
-            margin-bottom: 4px;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-            display: block;
-            margin-top: 12px;
-            margin-bottom: 4px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 14px;
-            background-color: var(--bg-input);
-            color: var(--text-main);
-        }
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 22px;
-            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        #btnInstalarAppAdmin {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 13px;
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        body { font-family: sans-serif; background: #070a12; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .container { width: 100%; max-width: 450px; background: #0f172a; padding: 25px; border-radius: 20px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        label { font-size: 12px; color: #94a3b8; font-weight: bold; display: block; margin-top: 10px; margin-bottom: 4px; }
+        input { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 10px; background: #1e293b; color: #fff; box-sizing: border-box; }
+        button[type="submit"] { width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        #btnInstalarAppAdmin { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #3b82f6; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(59,130,246,0.4); display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header-panel">
-            <div class="barber-logo-icon">✂️</div>
-            <h1>Registro de Barbería</h1>
-            <p class="subtitle">Crea tu panel de administración y control</p>
-        </div>
-
+        <h2 style="text-align:center; margin-bottom: 5px;">💈 Registro de Barbería</h2>
+        <p style="text-align:center; font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Crea tu panel de administración</p>
+        
         <form id="formRegistroBarberia">
-            <label for="nombreBarberia">Nombre del Local / Barbería</label>
+            <label>Nombre del Local</label>
             <input type="text" id="nombreBarberia" placeholder="Ej. Barber King" required>
-
-            <label for="direccion">Dirección</label>
-            <input type="text" id="direccion" placeholder="Ej. Calle 45 #20-10">
-
-            <label for="telefono">Teléfono de Contacto</label>
+            <label>Dirección</label>
+            <input type="text" id="direccion" placeholder="Ej. Calle 45">
+            <label>Teléfono</label>
             <input type="tel" id="telefono" placeholder="Ej. 3001234567">
-
-            <label for="pinAdmin">PIN de Acceso (Administrador)</label>
+            <label>PIN de Acceso</label>
             <input type="password" id="pinAdmin" placeholder="Ej. 1234" required>
-
-            <button type="submit">🚀 Registrar y Crear Panel</button>
+            <button type="submit">Registrar y Crear Panel</button>
         </form>
     </div>
 
-    <!-- BOTÓN FLOTANTE PARA INSTALAR LA PWA DE ADMINISTRACIÓN -->
     <button id="btnInstalarAppAdmin" onclick="intentarInstalarAdmin()">
         📲 Instalar App Admin
     </button>
 
     <script>
-        // ENVÍO DE FORMULARIO DE REGISTRO
         document.getElementById('formRegistroBarberia').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const nombre = document.getElementById('nombreBarberia').value;
+            const direccion = document.getElementById('direccion').value;
+            const telefono = document.getElementById('telefono').value;
+            const pin = document.getElementById('pinAdmin').value;
 
-            const nombre = document.getElementById('nombreBarberia').value.trim();
-            const direccion = document.getElementById('direccion').value.trim();
-            const telefono = document.getElementById('telefono').value.trim();
-            const pin = document.getElementById('pinAdmin').value.trim();
-
-            try {
-                const res = await fetch('/api/barberias', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, direccion, telefono, pin })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    alert("¡Barbería registrada con éxito!");
-                    window.location.href = `/admin.html?id=${data.barberiaId}`;
-                } else {
-                    alert(data.error || "No se pudo completar el registro.");
-                }
-            } catch (err) {
-                console.error("Error al registrar:", err);
-                alert("Error de conexión con el servidor.");
+            const res = await fetch('/api/barberias', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, direccion, telefono, pin })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("¡Registrado con éxito!");
+                window.location.href = `/admin.html?id=${data.barberiaId}`;
+            } else {
+                alert(data.error || "Error al registrar");
             }
         });
 
-        // SERVICE WORKER
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(() => console.log('Service Worker de Admin activo'))
-                    .catch(err => console.error('Error Service Worker:', err));
-            });
-        }
-
         let deferredPromptAdmin = null;
+        const btnAdmin = document.getElementById('btnInstalarAppAdmin');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPromptAdmin = e;
+            if (btnAdmin) btnAdmin.style.display = 'flex';
         });
 
         async function intentarInstalarAdmin() {
             if (deferredPromptAdmin) {
                 deferredPromptAdmin.prompt();
                 const { outcome } = await deferredPromptAdmin.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('Dueño instaló la PWA de administración');
-                }
+                if (outcome === 'accepted') if (btnAdmin) btnAdmin.style.display = 'none';
                 deferredPromptAdmin = null;
             } else {
-                const esIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (esIos) {
-                    alert("📱 Para instalar el Panel Admin en tu iPhone:\n\n1. Toca el botón de Compartir ⎋ en Safari.\n2. Selecciona 'Agregar a inicio' ➕.");
-                } else {
-                    alert("📱 Para instalar la App de Administración:\n\nToca los 3 puntos ⋮ arriba a la derecha en tu navegador y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
-                }
+                alert("📱 Para instalar la App Admin:\nToca los 3 puntos ⋮ en tu navegador y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
             }
         }
     </script>
