@@ -12,24 +12,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', true);
 
-// =========================================================
-// RUTA DINÁMICA DE MANIFIESTOS DESDE EL ÚNICO MANIFEST.JSON
-// =========================================================
+// ==========================================
+// RUTAS EXPLÍCITAS PARA LOS MANIFIESTOS
+// ==========================================
 app.get('/manifest.json', (req, res) => {
-    try {
-        const filePath = path.join(__dirname, 'manifest.json');
-        const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        res.setHeader('Content-Type', 'application/json');
-        
-        // Si la petición viene rotulada como cliente, entrega la sección clientes
-        if (req.query.tipo === 'cliente') {
-            return res.json(fileContent.clientes);
-        }
-        // Por defecto entrega la sección de administración para barberos
-        res.json(fileContent.barberos_admin);
-    } catch (err) {
-        res.status(500).json({ error: "Error al leer manifest.json" });
-    }
+    res.sendFile(path.join(__dirname, 'manifest.json'));
+});
+
+app.get('/manifest-cliente.json', (req, res) => {
+    res.sendFile(path.join(__dirname, 'manifest-cliente.json'));
 });
 
 // VISTAS Y ARCHIVOS ESTÁTICOS
@@ -88,7 +79,7 @@ app.get('/', (req, res) => {
     }
 });
 
-// APIS DE REGISTRO Y SUPERADMIN RESTAURADAS
+// APIS
 app.post('/api/barberias', async (req, res) => {
     let { nombre, direccion, telefono, pin } = req.body;
     if (!nombre) return res.status(400).json({ success: false, error: "Nombre obligatorio" });
