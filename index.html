@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agendar Cita - Barbería</title>
 
-    <!-- CONFIGURACIÓN PWA E ICONOS -->
+    <!-- CONFIGURACIÓN PWA E ICONO DE CARAMELO DE BARBERÍA -->
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="apple-touch-icon" href="/icon-192.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json?v=2">
     
     <meta name="theme-color" content="#070a12">
     <meta name="mobile-web-app-capable" content="yes">
@@ -105,7 +105,7 @@
             box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
         }
 
-        /* BOTÓN FLOTANTE PARA QUE EL CLIENTE INSTALE LA APP DE LA BARBERÍA */
+        /* BOTÓN FLOTANTE PARA INSTALAR LA APP */
         #btnInstalarAppCliente {
             position: fixed;
             bottom: 20px;
@@ -156,30 +156,37 @@
         </form>
     </div>
 
-    <!-- BOTÓN FLOTANTE PARA INSTALAR LA APP DE CLIENTES -->
+    <!-- BOTÓN FLOTANTE PARA CLIENTES -->
     <button id="btnInstalarAppCliente" onclick="intentarInstalarCliente()">
         📲 Instalar App Barbería
     </button>
 
     <script>
-        // Obtener el ID de la barbería desde la URL (?id=...)
+        // GESTIÓN INTELIGENTE DE ID DE BARBERÍA PARA CLIENTES
         const urlParams = new URLSearchParams(window.location.search);
         let barberiaId = urlParams.get('id');
 
-        // Si el cliente abre la App ya instalada y la URL no trae el ID, lo recuperamos de la memoria interna
         if (!barberiaId) {
             barberiaId = localStorage.getItem('clienteBarberiaId');
         } else {
-            // Si viene en la URL, lo guardamos para futuras aperturas directas de la App
             localStorage.setItem('clienteBarberiaId', barberiaId);
         }
 
         if (!barberiaId) {
-            alert("Enlace inválido o barbería no especificada.");
-            window.location.replace('/registro.html');
+            document.body.innerHTML = `
+                <div style="text-align:center; color:white; padding:50px; font-family:sans-serif;">
+                    <h2>⚠️ Enlace no válido</h2>
+                    <p>Por favor, ingresa a través del enlace de WhatsApp que te compartió tu barbería.</p>
+                </div>
+            `;
+            throw new Error("Barbería no especificada.");
         }
 
-        // Cargar datos de la barbería para mostrar servicios y barberos
+        if (!urlParams.get('id') && barberiaId) {
+            window.history.replaceState({}, '', `/?id=${barberiaId}`);
+        }
+
+        // CARGAR DATOS DE LA BARBERÍA
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}`);
@@ -192,14 +199,12 @@
 
                 document.getElementById('nombreBarberiaCliente').innerText = data.nombre;
 
-                // Llenar servicios
                 const selectServicio = document.getElementById('selectServicio');
                 selectServicio.innerHTML = '<option value="">Selecciona un servicio...</option>';
                 (data.servicios || []).forEach(s => {
                     selectServicio.innerHTML += `<option value="${s.nombre}">${s.nombre} - $${Number(s.precio).toLocaleString()}</option>`;
                 });
 
-                // Llenar barberos
                 const selectBarbero = document.getElementById('selectBarbero');
                 selectBarbero.innerHTML = '<option value="General">Cualquier barbero disponible</option>';
                 (data.barberos || []).forEach(b => {
@@ -211,7 +216,7 @@
             }
         });
 
-        // Enviar formulario de agendamiento
+        // ENVIAR FORMULARIO DE CITA
         document.getElementById('formAgendarCita').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -241,9 +246,7 @@
             }
         });
 
-        // =========================================================
-        // GESTIÓN DE SERVICE WORKER E INSTALACIÓN PWA PARA CLIENTES
-        // =========================================================
+        // SERVICE WORKER Y PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
