@@ -5,185 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agendar Cita - Barbería</title>
 
-    <!-- CONFIGURACIÓN PWA E ICONOS -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-    <link rel="apple-touch-icon" href="/icon-192.png">
+    <!-- MANIFIESTO EXCLUSIVO PARA CLIENTES -->
     <link rel="manifest" href="/manifest-cliente.json">
-    
+
+    <link rel="icon" type="image/png" href="/icon-192.png">
     <meta name="theme-color" content="#070a12">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Mi Barbería">
 
     <style>
-        :root {
-            --primary: #3b82f6;
-            --bg-dark: #070a12;
-            --bg-card: #0f172a;
-            --bg-input: #1e293b;
-            --border-color: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-cyan: #06b6d4;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            max-width: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: rgba(15, 23, 42, 0.95);
-            padding: 30px;
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            margin-bottom: 20px;
-        }
-
-        .header-panel {
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 18px;
-            margin-bottom: 22px;
-        }
-
-        .barber-logo-icon {
-            width: 65px;
-            height: 65px;
-            background: linear-gradient(135deg, #1e40af 0%, #0e7490 100%);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            box-shadow: 0 8px 20px rgba(14, 116, 144, 0.4);
-            border: 2px solid rgba(6, 182, 212, 0.4);
-            margin: 0 auto 12px auto;
-        }
-
-        h1 {
-            font-size: 22px;
-            color: #fff;
-            text-align: center;
-            margin-bottom: 4px;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-            display: block;
-            margin-top: 12px;
-            margin-bottom: 4px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 14px;
-            background-color: var(--bg-input);
-            color: var(--text-main);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        #btnInstalarAppCliente {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 13px;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        body { font-family: sans-serif; background: #070a12; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { width: 100%; max-width: 450px; background: #0f172a; padding: 25px; border-radius: 20px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .header { text-align: center; margin-bottom: 20px; }
+        .icon { font-size: 40px; margin-bottom: 10px; }
+        label { font-size: 12px; color: #94a3b8; font-weight: bold; display: block; margin-top: 10px; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 10px; background: #1e293b; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header-panel">
-            <div class="barber-logo-icon">💈</div>
-            <h1 id="nombreBarberiaCliente">Cargando Barbería...</h1>
-            <p class="subtitle">Reserva tu cita de forma rápida y sencilla</p>
+        <div class="header">
+            <div class="icon">💈</div>
+            <h1 id="nombreBarberiaCliente" style="font-size: 20px; margin: 0;">Cargando Barbería...</h1>
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Reserva tu cita fácilmente</p>
         </div>
 
-        <form id="formAgendarCita">
-            <label for="clienteNombre">Tu Nombre</label>
+        <form id="formAgendar">
+            <label>Tu Nombre</label>
             <input type="text" id="clienteNombre" placeholder="Ej. Carlos Pérez" required>
 
-            <label for="clienteTelefono">Tu Teléfono / WhatsApp</label>
-            <input type="tel" id="clienteTelefono" placeholder="Ej. 3001234567">
+            <label>Tu Teléfono / WhatsApp</label>
+            <input type="tel" id="clienteTelefono" placeholder="Ej. 3001234567" required>
 
-            <label for="selectServicio">Selecciona el Servicio</label>
+            <label>Servicio</label>
             <select id="selectServicio" required>
                 <option value="">Cargando servicios...</option>
             </select>
 
-            <label for="selectBarbero">Selecciona el Barbero</label>
+            <label>Barbero</label>
             <select id="selectBarbero">
                 <option value="General">Cualquier barbero disponible</option>
             </select>
 
-            <label for="fechaHoraCita">Fecha y Hora</label>
+            <label>Fecha y Hora</label>
             <input type="datetime-local" id="fechaHoraCita" required>
 
             <button type="submit">📅 Confirmar y Agendar Cita</button>
         </form>
     </div>
 
-    <button id="btnInstalarAppCliente" onclick="intentarInstalarCliente()">
-        📲 Instalar App Barbería
-    </button>
-
     <script>
-        // RECUPERACIÓN Y GESTIÓN AUTOMÁTICA DEL ID DE LA BARBERÍA
+        // RECUPERACIÓN Y PERSISTENCIA DE ID PARA PWA DE CLIENTES
         const urlParams = new URLSearchParams(window.location.search);
         let barberiaId = urlParams.get('id');
 
@@ -195,112 +70,63 @@
 
         if (!barberiaId) {
             document.body.innerHTML = `
-                <div style="text-align:center; color:white; padding:60px 20px; font-family:sans-serif;">
-                    <div style="font-size:50px; margin-bottom:15px;">💈</div>
-                    <h2>⚠️ Falta el enlace de la barbería</h2>
-                    <p style="color:#94a3b8; margin-top:10px;">Por favor, ingresa mediante el enlace de WhatsApp que te compartió tu barbero para agendar tu cita.</p>
+                <div style="text-align:center; color:white; padding:40px;">
+                    <h2>⚠️ Enlace de barbería requerido</h2>
+                    <p style="color:#94a3b8;">Por favor, ingresa mediante el enlace de WhatsApp compartido por tu barbero.</p>
                 </div>
             `;
-            throw new Error("ID de cliente no encontrado.");
+            throw new Error("ID no encontrado");
         }
 
         if (!urlParams.get('id') && barberiaId) {
             window.history.replaceState({}, '', `/cliente.html?id=${barberiaId}`);
         }
 
-        // CARGAR DATOS DE LA BARBERÍA EN EL FORMULARIO
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}`);
                 const data = await res.json();
-
-                if (!data.success) {
-                    alert("No se encontró la información de esta barbería.");
-                    return;
-                }
+                if (!data.success) return alert("Barbería no encontrada.");
 
                 document.getElementById('nombreBarberiaCliente').innerText = data.nombre;
 
-                const selectServicio = document.getElementById('selectServicio');
-                selectServicio.innerHTML = '<option value="">Selecciona un servicio...</option>';
+                const selServicio = document.getElementById('selectServicio');
+                selServicio.innerHTML = '<option value="">Selecciona un servicio...</option>';
                 (data.servicios || []).forEach(s => {
-                    selectServicio.innerHTML += `<option value="${s.nombre}">${s.nombre} - $${Number(s.precio).toLocaleString()}</option>`;
+                    selServicio.innerHTML += `<option value="${s.nombre}">${s.nombre} - $${Number(s.precio).toLocaleString()}</option>`;
                 });
 
-                const selectBarbero = document.getElementById('selectBarbero');
-                selectBarbero.innerHTML = '<option value="General">Cualquier barbero disponible</option>';
+                const selBarbero = document.getElementById('selectBarbero');
+                selBarbero.innerHTML = '<option value="General">Cualquier barbero disponible</option>';
                 (data.barberos || []).forEach(b => {
-                    selectBarbero.innerHTML += `<option value="${b.nombre}">${b.nombre} (${b.especialidad || 'General'})</option>`;
+                    selBarbero.innerHTML += `<option value="${b.nombre}">${b.nombre}</option>`;
                 });
-
             } catch (err) {
-                console.error("Error al cargar datos del cliente:", err);
+                console.error("Error cargando datos:", err);
             }
         });
 
-        // ENVIAR NUEVA CITA
-        document.getElementById('formAgendarCita').addEventListener('submit', async (e) => {
+        document.getElementById('formAgendar').addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            const clienteNombre = document.getElementById('clienteNombre').value.trim();
-            const clienteTelefono = document.getElementById('clienteTelefono').value.trim();
+            const clienteNombre = document.getElementById('clienteNombre').value;
+            const clienteTelefono = document.getElementById('clienteTelefono').value;
             const servicio = document.getElementById('selectServicio').value;
             const barbero = document.getElementById('selectBarbero').value;
             const fechaHora = document.getElementById('fechaHoraCita').value;
 
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/citas`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ clienteNombre, clienteTelefono, servicio, barbero, fechaHora })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    alert("¡Cita agendada con éxito! Te esperamos.");
-                    document.getElementById('formAgendarCita').reset();
-                } else {
-                    alert(data.error || "No se pudo agendar la cita.");
-                }
-            } catch (err) {
-                console.error("Error al agendar:", err);
-                alert("Error de conexión con el servidor.");
-            }
-        });
-
-        // REGISTRO DE SERVICE WORKER
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(() => console.log('Service Worker de Cliente activo'))
-                    .catch(err => console.error('Error Service Worker:', err));
+            const res = await fetch(`/api/barberias/${barberiaId}/citas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ clienteNombre, clienteTelefono, servicio, barbero, fechaHora })
             });
-        }
-
-        let deferredPromptCliente = null;
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPromptCliente = e;
-        });
-
-        async function intentarInstalarCliente() {
-            if (deferredPromptCliente) {
-                deferredPromptCliente.prompt();
-                const { outcome } = await deferredPromptCliente.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('Cliente instaló la PWA');
-                }
-                deferredPromptCliente = null;
+            const data = await res.json();
+            if (data.success) {
+                alert("¡Cita agendada con éxito!");
+                document.getElementById('formAgendar').reset();
             } else {
-                const esIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (esIos) {
-                    alert("📱 Para instalar esta Barbería en tu iPhone:\n\n1. Toca el botón de Compartir ⎋ en Safari.\n2. Selecciona 'Agregar a inicio' ➕.");
-                } else {
-                    alert("📱 Para instalar la App de esta Barbería:\n\nToca los 3 puntos ⋮ arriba a la derecha en tu navegador y selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
-                }
+                alert(data.error || "No se pudo agendar");
             }
-        }
+        });
     </script>
 </body>
 </html>
