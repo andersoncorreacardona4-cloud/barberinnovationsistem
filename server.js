@@ -57,6 +57,12 @@ app.get('/registro.html', (req, res) => {
     res.status(404).send('<h1>registro.html no encontrado</h1>');
 });
 
+app.get('/cliente.html', (req, res) => {
+    const ruta = path.join(__dirname, 'cliente.html');
+    if (fs.existsSync(ruta)) return res.sendFile(ruta);
+    res.status(404).send('<h1>cliente.html no encontrado</h1>');
+});
+
 app.use(express.static('.', {
     dotfiles: 'ignore',
     etag: true,
