@@ -1,14 +1,22 @@
 {
-  "name": "sistema-barberias",
-  "version": "1.0.0",
-  "description": "Sistema multi-tenant para gestion de barberias",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.21.2",
-    "mongodb": "^6.12.0",
-    "mongoose": "^8.9.5"
-  }
+  "short_name": "BarberAdmin",
+  "name": "Barber Innovation System",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/registro.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#070a12",
+  "theme_color": "#070a12",
+  "orientation": "portrait"
 }
