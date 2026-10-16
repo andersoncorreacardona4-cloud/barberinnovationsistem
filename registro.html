@@ -37,6 +37,12 @@
             background: #3b82f6; color: white; border: none; padding: 12px 20px; 
             border-radius: 30px; font-weight: bold; font-size: 13px; cursor: pointer; 
             box-shadow: 0 4px 15px rgba(59,130,246,0.4); display: flex; align-items: center; gap: 8px; 
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        #btnInstalarAppAdmin:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -128,9 +134,15 @@
                 }
                 deferredPromptAdmin = null;
             } else {
-                alert("📱 Para instalar la App Admin:\n\n1. Toca los 3 puntos (⋮) arriba a la derecha en tu navegador.\n2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
+                alert("📱 Para instalar la App Admin:\n\n1. Toca los 3 puntos (⋮) arriba a la derecha en tu navegador (o el botón compartir en Safari).\n2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
             }
         }
+
+        window.addEventListener('appinstalled', () => {
+            console.log('App Admin instalada correctamente.');
+            const btn = document.getElementById('btnInstalarAppAdmin');
+            if (btn) btn.style.display = 'none';
+        });
 
         // REGISTRO OBLIGATORIO DEL SERVICE WORKER PARA HABILITAR INSTALACIÓN PWA
         if ('serviceWorker' in navigator) {
