@@ -13,6 +13,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <!-- VALIDACIÓN INTELIGENTE: Si ya hay una barbería registrada, redirigir directo al admin -->
+    <script>
+        (function() {
+            const idGuardado = localStorage.getItem("miBarberiaRegistradaId");
+            if (idGuardado) {
+                window.location.replace(`/admin.html?id=${idGuardado}`);
+            }
+        })();
+    </script>
+
     <style>
         body { font-family: sans-serif; background: #070a12; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
         .container { width: 100%; max-width: 450px; background: #0f172a; padding: 25px; border-radius: 20px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
@@ -84,6 +94,9 @@
                 const data = await res.json();
 
                 if (data.success) {
+                    // GUARDAMOS EL ID EN LOCALSTORAGE PARA QUE NUNCA MÁS VEA EL REGISTRO
+                    localStorage.setItem("miBarberiaRegistradaId", data.barberiaId);
+
                     alert("¡Barbería registrada con éxito!");
                     window.location.href = `/admin.html?id=${data.barberiaId}`;
                 } else {
@@ -93,7 +106,7 @@
                 }
             } catch (err) {
                 console.error("Error:", err);
-                alert("El servidor en Render tardó en responder. Por favor, recarga la página e inténtalo de nuevo.");
+                alert("El servidor tardó en responder. Por favor, recarga la página e inténtalo de nuevo.");
                 btnSubmit.innerHTML = textoOriginal;
                 btnSubmit.disabled = false;
             }
