@@ -20,7 +20,14 @@
         input { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 10px; background: #1e293b; color: #fff; box-sizing: border-box; }
         button[type="submit"] { width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; }
         button[type="submit"]:disabled { background: #1e40af; opacity: 0.7; cursor: not-allowed; }
-        #btnInstalarAppAdmin { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #3b82f6; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(59,130,246,0.4); display: flex; align-items: center; gap: 8px; }
+        
+        /* BOTÓN DE INSTALACIÓN FLOTANTE VISIBLE */
+        #btnInstalarAppAdmin { 
+            position: fixed; bottom: 20px; right: 20px; z-index: 9999; 
+            background: #3b82f6; color: white; border: none; padding: 12px 20px; 
+            border-radius: 30px; font-weight: bold; font-size: 13px; cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(59,130,246,0.4); display: flex; align-items: center; gap: 8px; 
+        }
     </style>
 </head>
 <body>
@@ -42,6 +49,7 @@
         </form>
     </div>
 
+    <!-- BOTÓN DE INSTALACIÓN SIEMPRE DISPONIBLE -->
     <button id="btnInstalarAppAdmin" onclick="intentarInstalarAdmin()">
         📲 Instalar App Admin
     </button>
@@ -58,13 +66,12 @@
             const btnSubmit = e.target.querySelector('button[type="submit"]');
             const textoOriginal = btnSubmit.innerHTML;
 
-            // Aviso visual si Render está despertando del modo reposo
-            btnSubmit.innerHTML = "⏳ Despertando servidor en la nube...";
+            btnSubmit.innerHTML = "⏳ Conectando con el servidor...";
             btnSubmit.disabled = true;
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos de margen
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos límite
 
                 const res = await fetch('/api/barberias', {
                     method: 'POST',
@@ -86,11 +93,7 @@
                 }
             } catch (err) {
                 console.error("Error:", err);
-                if (err.name === 'AbortError') {
-                    alert("El servidor tardó demasiado en responder. Por favor, intenta hacer clic en registrar nuevamente.");
-                } else {
-                    alert("El servidor se está reactivando. Inténtalo de nuevo en unos segundos.");
-                }
+                alert("El servidor en Render tardó en responder. Por favor, recarga la página e inténtalo de nuevo.");
                 btnSubmit.innerHTML = textoOriginal;
                 btnSubmit.disabled = false;
             }
