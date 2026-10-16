@@ -1,22 +1,16 @@
 {
-  "short_name": "BarberAdmin",
-  "name": "Barber Innovation System",
-  "icons": [
-    {
-      "src": "/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "/icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": "/registro.html",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#070a12",
-  "theme_color": "#070a12",
-  "orientation": "portrait"
+  "name": "barber-app",
+  "version": "1.0.0",
+  "description": "Sistema de gestion de barberias",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^6.5.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
 }
