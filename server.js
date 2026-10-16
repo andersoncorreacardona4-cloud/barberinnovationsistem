@@ -3,24 +3,38 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middleware para leer JSON y formularios
+// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir archivos estáticos (HTML, iconos, manifiestos) desde la raíz del proyecto
+// Servir archivos estáticos (HTML, CSS, JS, imágenes, manifiestos)
 app.use(express.static(path.join(__dirname)));
 
-// Conexión a MongoDB Atlas con manejo seguro de tiempos de espera y errores
+// Conexión reutilizable a MongoDB Atlas (Serverless / Vercel friendly)
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://andersoncorreacardona4_db_user:7MInK4js3yK8CUQb@barverinnovationsistem.hd0sfnq.mongodb.net/?retryWrites=true&w=majority&appName=barverinnovationsistem";
 
-mongoose.connect(MONGO_URI, {
-    serverSelectionTimeoutMS: 10000, // Tiempo límite de espera de 10 segundos
-    socketTimeoutMS: 45000,
-})
-.then(() => console.log("🟢 Conectado exitosamente a MongoDB Atlas"))
-.catch(err => console.error("🔴 Error al conectar a MongoDB:", err));
+let isConnected = false;
+
+async function connectDB() {
+    if (isConnected && mongoose.connection.readyState === 1) return;
+    try {
+        await mongoose.connect(MONGO_URI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000
+        });
+        isConnected = true;
+        console.log("🟢 Conectado exitosamente a MongoDB Atlas en Vercel");
+    } catch (err) {
+        console.error("🔴 Error al conectar a MongoDB:", err);
+    }
+}
+
+// Middleware para asegurar la conexión antes de procesar cualquier ruta
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
 
 // Esquema y Modelo de Barbería
 const barberiaSchema = new mongoose.Schema({
@@ -31,14 +45,14 @@ const barberiaSchema = new mongoose.Schema({
     fechaCreacion: { type: Date, default: Date.now }
 });
 
-const Barberia = mongoose.model('Barberia', barberiaSchema);
+const Barberia = mongoose.models.Barberia || mongoose.model('Barberia', barberiaSchema);
 
-// Endpoint /ping para verificar estado y evitar suspensiones por inactividad
+// Endpoint /ping
 app.get('/ping', (req, res) => {
     res.status(200).send('pong');
 });
 
-// Ruta para registrar una nueva barbería con control de errores completo
+// Ruta para registrar una nueva barbería
 app.post('/api/barberias', async (req, res) => {
     try {
         const { nombre, direccion, telefono, pin } = req.body;
@@ -66,7 +80,13 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'registro.html'));
 });
 
-// Iniciar servidor escuchando el puerto asignado por la plataforma (Railway / Render / Local)
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
-});
+// Exportar app para las Serverless Functions de Vercel
+module.exports = app;
+
+// Escuchar en puerto solo en entorno de desarrollo local
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`🚀 Servidor local corriendo en http://localhost:${PORT}`);
+    });
+}
