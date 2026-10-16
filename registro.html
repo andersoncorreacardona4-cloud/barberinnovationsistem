@@ -131,6 +131,15 @@
                 alert("📱 Para instalar la App Admin:\n\n1. Toca los 3 puntos (⋮) arriba a la derecha en tu navegador.\n2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
             }
         }
+
+        // REGISTRO OBLIGATORIO DEL SERVICE WORKER PARA HABILITAR INSTALACIÓN PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+                    .catch(err => console.log('Error al registrar el Service Worker:', err));
+            });
+        }
     </script>
 </body>
 </html>
