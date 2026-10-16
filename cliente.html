@@ -83,6 +83,12 @@
             color: white; border: none; border-radius: 12px;
             font-size: 15px; font-weight: 700; cursor: pointer;
             margin-top: 22px; box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        button[type="submit"]:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
         }
 
         #btnInstalarAppCliente {
@@ -91,6 +97,11 @@
             color: white; border: none; padding: 12px 20px; border-radius: 30px;
             font-weight: bold; font-size: 13px; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
             cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        #btnInstalarAppCliente:hover {
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -229,7 +240,8 @@
                 deferredPromptCliente.prompt();
                 const { outcome } = await deferredPromptCliente.userChoice;
                 if (outcome === 'accepted') {
-                    document.getElementById('btnInstalarAppCliente').style.display = 'none';
+                    const btn = document.getElementById('btnInstalarAppCliente');
+                    if (btn) btn.style.display = 'none';
                 }
                 deferredPromptCliente = null;
             } else {
@@ -241,6 +253,12 @@
                 }
             }
         }
+
+        window.addEventListener('appinstalled', () => {
+            console.log('App Cliente instalada exitosamente.');
+            const btn = document.getElementById('btnInstalarAppCliente');
+            if (btn) btn.style.display = 'none';
+        });
     </script>
 </body>
 </html>
