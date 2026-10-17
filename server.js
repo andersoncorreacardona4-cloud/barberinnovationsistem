@@ -673,7 +673,7 @@ app.delete('/api/barberias/:id/citas/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
-// Ruta GET /api/barberia/:id (en singular, útil para verificación de existencia y seguridad)
+// Ruta GET /api/barberia/:id (en singular, para verificación de existencia y seguridad)
 app.get('/api/barberia/:id', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
@@ -743,10 +743,8 @@ app.post('/api/barberias/:id/citas', async (req, res) => {
 // ADAPTACIÓN PARA VERCEL (SERVERLESS) Y LOCAL
 // ==========================================
 
-// 1. Exportación obligatoria para que Vercel maneje la app Express
 module.exports = app;
 
-// 2. Arranque local condicional (si no se está ejecutando dentro de Vercel)
 if (process.env.NODE_ENV !== 'production') {
     async function iniciarServidor() {
         await conectarDB();
