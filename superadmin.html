@@ -23,12 +23,10 @@
         }
 
         * {
-            -webkit-box-sizing: border-box;
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             max-width: 100%;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -178,14 +176,12 @@
             padding: 10px 14px 10px 38px;
             border-radius: 12px;
             font-size: 13px;
-            -webkit-appearance: none;
         }
 
         .search-icon {
             position: absolute;
             left: 12px;
             top: 50%;
-            -webkit-transform: translateY(-50%);
             transform: translateY(-50%);
             color: var(--text-muted);
             font-size: 14px;
@@ -232,7 +228,6 @@
             border-radius: 8px;
             padding: 6px 10px;
             font-size: 12px;
-            -webkit-appearance: none;
         }
 
         .action-btn {
@@ -244,12 +239,10 @@
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            -webkit-appearance: none;
         }
 
         .action-btn:hover {
             opacity: 0.9;
-            -webkit-transform: translateY(-1px);
             transform: translateY(-1px);
         }
 
@@ -464,10 +457,8 @@
             barberias.forEach(b => {
                 const tr = document.createElement('tr');
 
-                // Soporte para _id de MongoDB u id estándar
-                const barberiaId = b.id || b._id;
-                const urlCliente = `${window.location.origin}/?id=${barberiaId}`;
-                const urlAdmin = `${window.location.origin}/admin.html?id=${barberiaId}`;
+                const urlCliente = `${window.location.origin}/?id=${b.id}`;
+                const urlAdmin = `${window.location.origin}/admin.html?id=${b.id}`;
 
                 const infoVigencia = calcularEstadoVigencia(b);
                 const estaActiva = b.activa === true || b.activa === 1 || b.activa === "true";
@@ -477,13 +468,13 @@
                     : '<span style="font-size: 11px; color: var(--accent-rose); font-weight: 500;">Acceso: Bloqueado</span>';
 
                 const botonEstadoHtml = estaActiva 
-                    ? `<button onclick="cambiarEstado('${barberiaId}', false)" class="action-btn btn-block">Bloquear</button>`
-                    : `<button onclick="cambiarEstado('${barberiaId}', true)" class="action-btn btn-allow">Permitir Acceso</button>`;
+                    ? `<button onclick="cambiarEstado('${b.id}', false)" class="action-btn btn-block">Bloquear</button>`
+                    : `<button onclick="cambiarEstado('${b.id}', true)" class="action-btn btn-allow">Permitir Acceso</button>`;
 
                 tr.innerHTML = `
                     <td>
                         <div style="font-weight: 700; color: #ffffff; font-size: 14px;">${b.nombre || 'Sin nombre'}</div>
-                        <div style="font-size: 11px; color: var(--text-muted); font-family: monospace;">ID: ${barberiaId}</div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-family: monospace;">ID: ${b.id}</div>
                         <div style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;">
                             <span style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--accent-amber); font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 6px;">
                                 🔑 PIN Admin: <b>${b.pin || '1234'}</b>
@@ -512,9 +503,9 @@
                     </td>
                     <td style="text-align: center;">
                         <div style="display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;">
-                            <button onclick="renovarSuscripcion('${barberiaId}')" class="action-btn btn-renew">Renovar</button>
+                            <button onclick="renovarSuscripcion('${b.id}')" class="action-btn btn-renew">Renovar</button>
                             ${botonEstadoHtml}
-                            <button onclick="eliminarBarberia('${barberiaId}', '${b.nombre}')" class="action-btn btn-delete">Eliminar</button>
+                            <button onclick="eliminarBarberia('${b.id}', '${b.nombre}')" class="action-btn btn-delete">Eliminar</button>
                         </div>
                     </td>
                 `;
@@ -526,7 +517,7 @@
             const texto = document.getElementById('inputBuscar').value.toLowerCase();
             const filtradas = listaBarberiasGlobal.filter(b => {
                 const nombre = (b.nombre || '').toLowerCase();
-                const id = String(b.id || b._id || '').toLowerCase();
+                const id = String(b.id || '').toLowerCase();
                 const pin = String(b.pin || '').toLowerCase();
                 const clave = String(b.claveBorrado || '').toLowerCase();
                 return nombre.includes(texto) || id.includes(texto) || pin.includes(texto) || clave.includes(texto);
