@@ -175,7 +175,12 @@
                 }
                 deferredPrompt = null;
             } else {
-                alert('Para instalar la aplicación, toca los tres puntos (⋮) en la esquina superior derecha de tu navegador Chrome y selecciona "Instalar aplicación" o "Agregar a la pantalla principal".');
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) {
+                    alert('Para instalar en iPhone:\n1. Toca el botón de Compartir (cuadrado con una flecha ↑).\n2. Selecciona "Agregar a inicio".');
+                } else {
+                    alert('Para instalar la aplicación:\n1. Toca los tres puntos (⋮) en la esquina superior derecha de tu navegador Chrome y selecciona "Instalar aplicación" o "Agregar a la pantalla principal".');
+                }
             }
         });
 
