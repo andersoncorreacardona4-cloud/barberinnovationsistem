@@ -587,18 +587,16 @@
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
 
-                // SI LA BARBERÍA FUE ELIMINADA DESDE EL SUPERADMIN (404)
-                if (res.status === 404) {
-                    localStorage.removeItem('barberiaId');
-                    window.location.replace('/registro.html');
+                // SI LA BARBERÍA FUE ELIMINADA DESDE EL SUPERADMIN (404) O NO AUTORIZADA
+                if (res.status === 404 || res.status === 401 || res.status === 403) {
+                    expulsarAlRegistro();
                     return;
                 }
 
                 const data = await res.json();
 
-                if (!data.success) {
-                    localStorage.removeItem('barberiaId');
-                    window.location.replace('/registro.html');
+                if (!res.ok || !data.success) {
+                    expulsarAlRegistro();
                     return;
                 }
 
@@ -608,6 +606,14 @@
             } catch (err) {
                 console.error("Error cargando datos del admin:", err);
             }
+        }
+
+        function expulsarAlRegistro() {
+            localStorage.removeItem('barberiaId');
+            localStorage.removeItem('token');
+            localStorage.removeItem('barberiaData');
+            localStorage.clear(); // Limpia completamente credenciales fantasma
+            window.location.replace('/registro.html');
         }
 
         function renderizarPanel(data) {
