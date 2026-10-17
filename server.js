@@ -673,6 +673,19 @@ app.delete('/api/barberias/:id/citas/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
+// Ruta GET /api/barberia/:id (en singular, útil para verificación de existencia y seguridad)
+app.get('/api/barberia/:id', async (req, res) => {
+    let barberias = await leerDB();
+    const { id } = req.params;
+    const barberia = barberias[id];
+
+    if (!barberia) {
+        return res.status(404).json({ success: false, error: "Barbería no encontrada o eliminada" });
+    }
+
+    res.json({ success: true, barberia });
+});
+
 app.get('/api/barberias/:id', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
