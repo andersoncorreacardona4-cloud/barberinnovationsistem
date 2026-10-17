@@ -20,12 +20,26 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Estrategia de red prioritaria (no cachea llamadas a la API de MongoDB)
+// Estrategia de red prioritaria (ignora caché en llamadas a la API para datos en tiempo real)
 self.addEventListener('fetch', (event) => {
+    // Evitar interceptar peticiones de extensiones de navegador u otros protocolos extraños
+    if (!event.request.url.startsWith('http')) {
+        return;
+    }
+
+    // Las rutas de la API de MongoDB van directas por la red sin caché
     if (event.request.url.includes('/api/')) {
         return;
     }
+
     event.respondWith(
-        fetch(event.request).catch(() => caches.match(event.request))
+        fetch(event.request)
+            .then((response) => {
+                // Opcional: podrías clonar y guardar en caché recursos estáticos si lo deseas
+                return response;
+            })
+            .catch(() => {
+                return caches.match(event.request);
+            })
     );
 });
