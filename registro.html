@@ -20,6 +20,7 @@
             --border-color: #334155;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --accent-cyan: #06b6d4;
         }
 
         * {
@@ -47,6 +48,7 @@
             width: 100%;
             max-width: 420px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            position: relative;
         }
 
         h2 {
@@ -101,11 +103,35 @@
         button:hover {
             opacity: 0.9;
         }
+
+        /* Botón de instalación PWA siempre visible */
+        #btnInstalarPWA {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
 
     <div class="card-registro">
+        <!-- BOTÓN PWA VISIBLE -->
+        <button id="btnInstalarPWA" type="button">
+            <span>📲</span> Instalar App en tu Celular
+        </button>
+
         <h2>💈 Registro de Barbería</h2>
         <p class="sub">Crea tu panel de administración</p>
 
@@ -127,7 +153,10 @@
     </div>
 
     <script>
-        // Registrar Service Worker para permitir la instalación PWA
+        let deferredPrompt;
+        const btnInstalar = document.getElementById('btnInstalarPWA');
+
+        // Registrar Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
@@ -135,6 +164,28 @@
                     .catch(err => console.error('Error Service Worker:', err));
             });
         }
+
+        // Capturar evento de instalación del navegador
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            btnInstalar.style.display = 'flex';
+        });
+
+        // Acción al hacer clic en el botón de instalación
+        btnInstalar.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('Usuario aceptó instalar la PWA');
+                    btnInstalar.style.display = 'none';
+                }
+                deferredPrompt = null;
+            } else {
+                alert('Para instalar la aplicación, toca los tres puntos (⋮) en la esquina superior derecha de tu navegador Chrome y selecciona "Instalar aplicación" o "Agregar a la pantalla principal".');
+            }
+        });
 
         document.getElementById('formRegistro').addEventListener('submit', async (e) => {
             e.preventDefault();
