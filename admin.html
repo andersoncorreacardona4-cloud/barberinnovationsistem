@@ -82,6 +82,8 @@
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 22px;
             margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .brand-container {
@@ -270,9 +272,9 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 10px;
         }
 
-        /* EFECTO DE PARPADEO NEÓN PARA CITAS PENDIENTES */
         @keyframes parpadeoNeon {
             0% {
                 border-color: #06b6d4;
@@ -358,7 +360,6 @@
 </head>
 <body>
 
-    <!-- PANEL DE ADMINISTRACIÓN PRINCIPAL (ACCESO DIRECTO SIN PIN) -->
     <div id="pantallaAdmin" class="container">
         <div class="header-panel">
             <div class="brand-container">
@@ -514,19 +515,69 @@
             <div id="listaBarberos" style="margin-top: 15px;"></div>
         </div>
 
-        <!-- Citas Agendadas -->
+        <!-- Citas Agendadas con Botón de Cita Manual -->
         <div class="section-box citas-neon-box">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                 <h3 style="color: #67e8f9; margin: 0;">📅 Citas y Solicitudes Recibidas</h3>
-                <button type="button" class="btn-danger" style="width: auto; margin: 0; padding: 10px 16px; font-size: 13px;" onclick="borrarTodasLasCitas()">
-                    🔒 Borrar Todas las Citas
-                </button>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="btn-success" style="width: auto; margin: 0; padding: 10px 16px; font-size: 13px;" onclick="abrirModalCitaManual()">
+                        ➕ Agendar Cita Manual
+                    </button>
+                    <button type="button" class="btn-danger" style="width: auto; margin: 0; padding: 10px 16px; font-size: 13px;" onclick="borrarTodasLasCitas()">
+                        🔒 Borrar Todas
+                    </button>
+                </div>
             </div>
             <p style="color: #cbd5e1;">Fecha y hora de solicitud registradas automáticamente:</p>
             <div id="listaCitas" style="margin-top: 15px;">Cargando citas...</div>
         </div>
         
         <button type="button" id="btnCerrarSesion" class="btn-danger" style="margin-top: 35px;" onclick="window.location.href='/'">Volver al Inicio</button>
+    </div>
+
+    <!-- MODAL PARA AGENDAR CITA MANUALMENTE -->
+    <div id="modalCitaManual" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 10, 18, 0.85); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: #0f172a; border: 1px solid #334155; padding: 30px; border-radius: 22px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px rgba(0,0,0,0.8);">
+            <h3 style="color: #ffffff; font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                <span>📅</span> Nueva Cita Manual (Admin)
+            </h3>
+            
+            <form id="formCitaManual" onsubmit="guardarCitaManual(event)">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 12px; color: #94a3b8; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;">Nombre del Cliente</label>
+                    <input type="text" id="manualClienteNombre" placeholder="Ej. Carlos Pérez" required style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 10px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 12px; color: #94a3b8; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;">Teléfono (Opcional)</label>
+                    <input type="text" id="manualClienteTelefono" placeholder="Ej. 3001234567" style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 10px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 12px; color: #94a3b8; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;">Servicio</label>
+                    <select id="manualServicio" required style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 10px;">
+                        <option value="">Selecciona un servicio...</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 12px; color: #94a3b8; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;">Barbero</label>
+                    <select id="manualBarbero" style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 10px;">
+                        <option value="General">Cualquier Barbero / General</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 12px; color: #94a3b8; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;">Fecha y Hora</label>
+                    <input type="datetime-local" id="manualFechaHora" required style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 10px;">
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="cerrarModalCitaManual()" style="width: 50%; padding: 12px; background: #334155; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Cancelar</button>
+                    <button type="submit" class="btn-success" style="width: 50%; padding: 12px; margin: 0; border-radius: 10px;">Guardar Cita</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -540,11 +591,87 @@
 
         let datosLocalesAdmin = null;
 
-        // Cargar datos automáticamente al iniciar y refrescar cada 10 segundos para ver parpadeos de citas en tiempo real
         window.addEventListener('DOMContentLoaded', () => {
             cargarDatosAdmin();
             setInterval(cargarDatosAdmin, 10000);
         });
+
+        // FUNCIONES PARA CITA MANUAL
+        function abrirModalCitaManual() {
+            if (!datosLocalesAdmin) return;
+
+            const selectServicio = document.getElementById('manualServicio');
+            const selectBarbero = document.getElementById('manualBarbero');
+
+            selectServicio.innerHTML = '<option value="">Selecciona un servicio...</option>';
+            if (datosLocalesAdmin.servicios && datosLocalesAdmin.servicios.length > 0) {
+                datosLocalesAdmin.servicios.forEach(s => {
+                    selectServicio.innerHTML += `<option value="${s.nombre} - $${s.precio}">${s.nombre} ($${s.precio})</option>`;
+                });
+            }
+
+            selectBarbero.innerHTML = '<option value="General">Cualquier Barbero / General</option>';
+            if (datosLocalesAdmin.barberos && datosLocalesAdmin.barberos.length > 0) {
+                datosLocalesAdmin.barberos.forEach(b => {
+                    selectBarbero.innerHTML += `<option value="${b.nombre}">${b.nombre}</option>`;
+                });
+            }
+
+            document.getElementById('modalCitaManual').style.display = 'flex';
+        }
+
+        function cerrarModalCitaManual() {
+            document.getElementById('modalCitaManual').style.display = 'none';
+            document.getElementById('formCitaManual').reset();
+        }
+
+        async function guardarCitaManual(event) {
+            event.preventDefault();
+
+            const clienteNombre = document.getElementById('manualClienteNombre').value.trim();
+            const clienteTelefono = document.getElementById('manualClienteTelefono').value.trim();
+            const servicio = document.getElementById('manualServicio').value;
+            const barbero = document.getElementById('manualBarbero').value;
+            const fechaHoraInput = document.getElementById('manualFechaHora').value;
+
+            if (!clienteNombre || !servicio || !fechaHoraInput) {
+                alert("Por favor completa los campos obligatorios.");
+                return;
+            }
+
+            const fechaObj = new Date(fechaHoraInput);
+            const fechaHoraFormateada = fechaObj.toLocaleString('es-CO', { 
+                dateStyle: 'medium', 
+                timeStyle: 'short' 
+            });
+
+            try {
+                const respuesta = await fetch(`/api/barberias/${barberiaId}/citas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        clienteNombre,
+                        clienteTelefono,
+                        servicio,
+                        barbero,
+                        fechaHora: fechaHoraFormateada
+                    })
+                });
+
+                const resultado = await respuesta.json();
+
+                if (resultado.success) {
+                    alert("¡Cita agendada manualmente con éxito!");
+                    cerrarModalCitaManual();
+                    cargarDatosAdmin();
+                } else {
+                    alert(resultado.error || "No se pudo registrar la cita.");
+                }
+            } catch (error) {
+                console.error("Error de red:", error);
+                alert("Error de conexión al guardar la cita.");
+            }
+        }
 
         document.getElementById('formClaveDueno').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -611,7 +738,6 @@
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
                 
-                // Si la barbería fue eliminada por el Superadmin, redirigir al registro
                 if (res.status === 404) {
                     alert("Esta barbería ha sido eliminada por el administrador. Debes registrarla nuevamente.");
                     window.location.replace('/registro.html');
@@ -744,123 +870,91 @@
                 `;
             });
 
-            // CITAS Y SOLICITUDES CON PARPADEO NEÓN PARA PENDIENTES
+            // CITAS AGENDADAS
             const divCitas = document.getElementById('listaCitas');
-            divCitas.innerHTML = (data.citas || []).length ? '' : '<p>No hay citas agendadas actualmente.</p>';
+            divCitas.innerHTML = (data.citas || []).length ? '' : '<p>No hay citas registradas.</p>';
             
-            (data.citas || []).slice().reverse().forEach((cita, indexOriginal) => {
-                const realIndex = data.citas.length - 1 - indexOriginal;
-                const estadoActual = cita.estado || 'Pendiente';
-                
-                const esPendiente = estadoActual === 'Pendiente';
+            (data.citas || []).slice().reverse().forEach((cita, idxReal) => {
+                const index = data.citas.length - 1 - idxReal;
+                const estado = cita.estado || 'Pendiente';
+                const esPendiente = estado === 'Pendiente';
                 const claseParpadeo = esPendiente ? 'cita-pendiente-parpadeo' : '';
-                
+
                 divCitas.innerHTML += `
-                    <div class="card-item ${claseParpadeo}" style="background: rgba(15, 23, 42, 0.9);">
-                        <div style="flex: 1; min-width: 200px; margin-bottom: 8px;">
-                            <b style="color: #67e8f9; font-size: 16px;">${cita.clienteNombre}</b> <span style="font-size: 13px; color: #cbd5e1;">(${cita.clienteTelefono || 'Sin teléfono'})</span><br>
-                            <span style="font-size: 14px;">✂️ Servicio: <b>${cita.servicio}</b> | 💈 Barbero: <b>${cita.barbero}</b></span><br>
-                            <span style="font-size: 13px; color: var(--accent-gold);">📅 ${cita.fechaHora}</span><br>
-                            <span style="font-size: 12px; padding: 2px 8px; border-radius: 6px; background: ${estadoActual === 'Atendido' || estadoActual === 'Completada' ? 'rgba(16, 185, 129, 0.2); color: #34d399;' : 'rgba(245, 158, 11, 0.3); color: #38bdf8; font-weight: bold;'}">Estado: <b>${estadoActual} ${esPendiente ? '⚡ NUEVA' : ''}</b></span>
+                    <div class="card-item ${claseParpadeo}">
+                        <div>
+                            <b>${cita.clienteNombre}</b> ${cita.clienteTelefono ? `(📞 ${cita.clienteTelefono})` : ''}
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                                Servicio: <b style="color: #67e8f9;">${cita.servicio}</b> | Barbero: <b>${cita.barbero || 'General'}</b>
+                            </div>
+                            <div style="font-size: 12px; color: #fcd34d; margin-top: 2px;">📅 ${cita.fechaHora}</div>
+                            <div style="font-size: 11px; margin-top: 4px;">Estado: <b style="color: ${esPendiente ? '#38bdf8' : '#34d399'};">${estado}</b></div>
                         </div>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" class="btn-success" style="width: auto; padding: 8px 12px; margin:0; font-size: 12px;" onclick="cambiarEstadoCita(${realIndex}, 'Atendido')">Atendido</button>
-                            <button type="button" class="btn-danger" style="width: auto; padding: 8px 12px; margin:0; font-size: 12px;" onclick="eliminarCita(${realIndex})">Eliminar</button>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                            ${esPendiente ? `<button type="button" class="btn-success" style="width: auto; padding: 6px 12px; margin:0; font-size:12px;" onclick="cambiarEstadoCita(${index}, 'Atendido')">Atender / Cobrar</button>` : ''}
+                            <button type="button" class="btn-danger" style="width: auto; padding: 6px 12px; margin:0; font-size:12px;" onclick="eliminarCita(${index})">Eliminar</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function copiarAlPortapapeles(texto, boton) {
-            navigator.clipboard.writeText(texto).then(() => {
-                const originalText = boton.innerText;
-                boton.innerText = "¡Copiado!";
-                setTimeout(() => { boton.innerText = originalText; }, 2000);
-            });
-        }
-
-        function copiarNumeroNequi(btn) {
-            copiarAlPortapapeles("3226167815", btn);
-        }
-
-        // AGREGAR SERVICIO
+        // FORMULARIOS DE GESTIÓN Y ACCIONES
         document.getElementById('formServicio').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('nombreServicio').value.trim();
             const precio = document.getElementById('precioServicio').value.trim();
-
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/servicios`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nombre, precio })
                 });
-                const data = await res.json();
-                if (data.success) {
+                if (res.ok) {
                     document.getElementById('formServicio').reset();
                     cargarDatosAdmin();
-                } else {
-                    alert(data.error || "Error al agregar servicio");
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Error de conexión");
-            }
+            } catch (err) { console.error(err); }
         });
 
         async function eliminarServicio(index) {
-            if (!confirm("¿Deseas eliminar este servicio?")) return;
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/servicios/${index}`, { method: 'DELETE' });
-                const data = await res.json();
-                if (data.success) cargarDatosAdmin();
-            } catch (err) {
-                console.error(err);
-            }
+                if (res.ok) cargarDatosAdmin();
+            } catch (err) { console.error(err); }
         }
 
-        // AGREGAR BARBERO
         document.getElementById('formBarbero').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('nombreBarbero').value.trim();
             const especialidad = document.getElementById('especialidadBarbero').value.trim();
-
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/barberos`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nombre, especialidad })
                 });
-                const data = await res.json();
-                if (data.success) {
+                if (res.ok) {
                     document.getElementById('formBarbero').reset();
                     cargarDatosAdmin();
                 }
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         });
 
         async function eliminarBarbero(index) {
-            if (!confirm("¿Deseas eliminar este barbero?")) return;
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/barberos/${index}`, { method: 'DELETE' });
-                const data = await res.json();
-                if (data.success) cargarDatosAdmin();
-            } catch (err) {
-                console.error(err);
-            }
+                if (res.ok) cargarDatosAdmin();
+            } catch (err) { console.error(err); }
         }
 
-        // INVENTARIO (PROTEGIDO CON CLAVE DE DUEÑO)
         document.getElementById('formInventario').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('nombreProducto').value.trim();
             const stock = document.getElementById('stockProducto').value.trim();
             const precio = document.getElementById('precioProducto').value.trim();
-            const claveDueño = prompt("Introduce tu Clave Única del Dueño para añadir inventario:");
-
+            const claveDueño = prompt("🔒 Ingresa tu Clave de Dueño para añadir stock:");
+            
             if (!claveDueño) return;
 
             try {
@@ -870,35 +964,28 @@
                     body: JSON.stringify({ nombre, stock, precio, claveDueño })
                 });
                 const data = await res.json();
-                if (data.success) {
+                if (res.ok && data.success) {
                     document.getElementById('formInventario').reset();
                     cargarDatosAdmin();
                 } else {
-                    alert(data.error || "Clave incorrecta o error al guardar");
+                    alert(data.error || "Clave incorrecta o error al guardar.");
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Error de conexión");
-            }
+            } catch (err) { console.error(err); }
         });
 
         async function eliminarProductoInventario(index) {
-            const claveDueño = prompt("Introduce tu Clave Única del Dueño para eliminar este producto:");
+            const claveDueño = prompt("🔒 Ingresa tu Clave de Dueño para eliminar este producto:");
             if (!claveDueño) return;
 
             try {
-                const res = await fetch(`/api/barberias/${barberiaId}/inventario/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, {
-                    method: 'DELETE'
-                });
+                const res = await fetch(`/api/barberias/${barberiaId}/inventario/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
                 const data = await res.json();
-                if (data.success) {
+                if (res.ok && data.success) {
                     cargarDatosAdmin();
                 } else {
-                    alert(data.error || "Clave incorrecta");
+                    alert(data.error || "Clave incorrecta.");
                 }
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function venderProductoInventario() {
@@ -907,99 +994,5 @@
             const cantidad = document.getElementById('cantidadProductoVenta').value;
 
             if (!barbero || productoIndex === "" || !cantidad) {
-                alert("Selecciona el barbero, el producto y la cantidad.");
+                alert("Selecciona barbero, producto y cantidad.");
                 return;
-            }
-
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/ventas-productos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ barbero, productoIndex, cantidad })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert(data.message);
-                    document.getElementById('cantidadProductoVenta').value = 1;
-                    cargarDatosAdmin();
-                } else {
-                    alert(data.error || "Error al registrar la venta");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Error de conexión");
-            }
-        }
-
-        // CITAS
-        async function cambiarEstadoCita(index, nuevoEstado) {
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}/estado`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ estado: nuevoEstado })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    cargarDatosAdmin();
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        async function eliminarCita(index) {
-            if (!confirm("¿Deseas eliminar esta cita?")) return;
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}`, { method: 'DELETE' });
-                const data = await res.json();
-                if (data.success) cargarDatosAdmin();
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        async function borrarTodasLasCitas() {
-            const claveDueño = prompt("Introduce tu Clave Única del Dueño para borrar todas las citas:");
-            if (!claveDueño) return;
-
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/citas/borrar-todas?claveDueño=${encodeURIComponent(claveDueño)}`, {
-                    method: 'DELETE'
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert(data.message);
-                    cargarDatosAdmin();
-                } else {
-                    alert(data.error || "Clave incorrecta");
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        async function reiniciarIngresosCaja() {
-            const claveDueño = prompt("Introduce tu Clave Única del Dueño para reiniciar caja e ingresos:");
-            if (!claveDueño) return;
-
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/reiniciar-ingresos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ claveDueño })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert(data.message);
-                    cargarDatosAdmin();
-                } else {
-                    alert(data.error || "Clave incorrecta");
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-    </script>
-</body>
-</html>
