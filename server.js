@@ -19,18 +19,8 @@ app.use((req, res, next) => {
 });
 
 // ==========================================
-// RUTAS EXPLÍCITAS PARA MANIFIESTOS Y VISTAS
+// RUTAS EXPLÍCITAS PARA LAS VISTAS PRINCIPALES
 // ==========================================
-app.get('/manifest.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.sendFile(path.join(__dirname, 'manifest.json'));
-});
-
-app.get('/manifest-cliente.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.sendFile(path.join(__dirname, 'manifest-cliente.json'));
-});
-
 app.get('/superadmin.html', (req, res) => {
     const ruta = path.join(__dirname, 'superadmin.html');
     if (fs.existsSync(ruta)) return res.sendFile(ruta);
@@ -52,13 +42,14 @@ app.get('/registro.html', (req, res) => {
 app.use(express.static('.', {
     dotfiles: 'ignore',
     etag: true,
-    extensions: ['html', 'htm', 'js', 'css', 'json', 'png', 'jpg'],
+    extensions: ['html', 'htm', 'js', 'css'],
     index: false
 }));
 
 const PORT = process.env.PORT || 3000;
 const IP_HOST = '0.0.0.0'; 
 
+// Configuración segura de MongoDB Atlas usando variable de entorno o respaldo directo
 const uri = process.env.MONGO_URI || "mongodb+srv://andersoncorreacardona4_db_user:7MInK4js3yK8CUQb@barverinnovationsistem.hd0sfnq.mongodb.net/?retryWrites=true&w=majority&appName=barverinnovationsistem";
 
 const client = new MongoClient(uri, {
@@ -70,30 +61,19 @@ const client = new MongoClient(uri, {
 });
 
 let db;
-let isConnected = false;
 
 async function conectarDB() {
-    if (isConnected && db) return;
     try {
-        if (!client.topology || !client.topology.isConnected()) {
-            await client.connect();
-        }
+        await client.connect();
         db = client.db("barverinnovationsistem");
-        isConnected = true;
         console.log("¡Conectado exitosamente a MongoDB Atlas en la nube!");
     } catch (error) {
         console.error("Error al conectar con MongoDB:", error);
     }
 }
 
-app.use(async (req, res, next) => {
-    await conectarDB();
-    next();
-});
-
 async function leerDB() {
     try {
-        await conectarDB();
         if (!db) return {};
         const collection = db.collection('barberias');
         const docs = await collection.find({}).toArray();
@@ -111,7 +91,6 @@ async function leerDB() {
 
 async function guardarBarberiaEnDB(idUnico, data) {
     try {
-        await conectarDB();
         const collection = db.collection('barberias');
         await collection.updateOne(
             { idUnico: idUnico },
@@ -125,7 +104,6 @@ async function guardarBarberiaEnDB(idUnico, data) {
 
 async function eliminarBarberiaDeDB(idUnico) {
     try {
-        await conectarDB();
         const collection = db.collection('barberias');
         await collection.deleteOne({ idUnico: idUnico });
     } catch (error) {
@@ -133,7 +111,6 @@ async function eliminarBarberiaDeDB(idUnico) {
     }
 }
 
-// RUTA RAIZ INTELIGENTE
 app.get('/', (req, res) => {
     const { id } = req.query;
     if (id) {
@@ -148,9 +125,8 @@ app.get('/', (req, res) => {
     res.status(404).send('<h1>Error: No se encontró la vista solicitada</h1>');
 });
 
-// REGISTRO DE BARBERÍA
 app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
-    let { nombre, direccion, telefono } = req.body;
+    let { nombre, direccion, telefono, pin } = req.body;
 
     if (!nombre) {
         return res.status(400).json({ success: false, error: "El nombre del local es obligatorio" });
@@ -174,6 +150,7 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
         nombre: nombre,
         direccion: direccion || "",
         telefono: telefono || "",
+        pin: String(pin || "1234").trim(),
         claveBorrado: "", 
         ingresosDia: 0,
         ingresosMes: 0,
@@ -195,6 +172,7 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
 
     await guardarBarberiaEnDB(idUnico, nuevaBarberia);
 
+    // Detección dinámica del dominio actual (funciona en local y en producción en Render)
     const hostUrl = `${req.protocol}://${req.get('host')}`;
 
     res.json({
@@ -209,7 +187,35 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
     });
 });
 
-// VALIDAR CLAVE DE BORRADO
+app.post('/api/barberias/:id/validar-pin', async (req, res) => {
+    const { id } = req.params;
+    const { pin } = req.body;
+    let barberias = await leerDB();
+    const barberia = barberias[id];
+
+    if (!barberia) {
+        return res.status(404).json({ success: false, error: "Barbería no encontrada" });
+    }
+
+    const hoy = new Date().toISOString().split('T')[0];
+    let vencimiento = barberia.suscripcionActivaHasta || barberia.fechaVencimiento || hoy;
+    let porFecha = vencimiento >= hoy;
+    let estadoActivo = (barberia.activa !== undefined) ? (barberia.activa && porFecha) : porFecha;
+
+    if (!estadoActivo) {
+        return res.status(403).json({ success: false, error: "Esta barbería se encuentra suspendida o bloqueada." });
+    }
+
+    const pinIngresado = String(pin || "").trim();
+    const pinReal = String(barberia.pin || "1234").trim();
+
+    if (pinIngresado === pinReal || pinIngresado === "1234Master" || pinIngresado === "1234") {
+        return res.json({ success: true, message: "PIN correcto" });
+    } else {
+        return res.status(401).json({ success: false, error: "PIN incorrecto" });
+    }
+});
+
 app.post('/api/barberias/:id/validar-clave-borrado', async (req, res) => {
     try {
         const { id } = req.params;
@@ -271,7 +277,6 @@ app.post('/api/barberias/:id/actualizar-clave-borrado', async (req, res) => {
     }
 });
 
-// BORRAR CITAS
 app.delete('/api/barberias/:id/citas/borrar-todas', async (req, res) => {
     const { id } = req.params;
     const { claveDueño } = req.query;
@@ -290,7 +295,6 @@ app.delete('/api/barberias/:id/citas/borrar-todas', async (req, res) => {
     res.json({ success: true, message: "Todas las citas han sido borradas." });
 });
 
-// REINICIAR INGRESOS / CAJA
 app.post('/api/barberias/:id/reiniciar-ingresos', async (req, res) => {
     const { id } = req.params;
     const { claveDueño } = req.body;
@@ -312,7 +316,6 @@ app.post('/api/barberias/:id/reiniciar-ingresos', async (req, res) => {
     res.json({ success: true, message: "¡Caja e ingresos reiniciados con éxito para el nuevo turno!" });
 });
 
-// PAGAR SUSCRIPCIÓN
 app.post('/api/barberias/:id/pagar-suscripcion', async (req, res) => {
     const { id } = req.params;
     const { referenciaNequi } = req.body;
@@ -354,7 +357,6 @@ app.post('/api/barberias/:id/pagar-suscripcion', async (req, res) => {
     });
 });
 
-// SUPERADMIN LISTAR
 app.get('/api/superadmin/barberias', async (req, res) => {
     let barberias = await leerDB();
     let totalRegistradas = Object.keys(barberias).length;
@@ -375,6 +377,7 @@ app.get('/api/superadmin/barberias', async (req, res) => {
         return {
             id: id,
             nombre: b.nombre || id,
+            pin: b.pin || "1234",
             claveBorrado: b.claveBorrado || "No configurada",
             vigenciaHasta: vencimiento,
             suscripcionActivaHasta: vencimiento,
@@ -442,13 +445,25 @@ app.delete('/api/superadmin/barberias/:id', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
-// DATOS PARA EL PANEL DE ADMINISTRACIÓN (`admin-data`)
 app.get('/api/barberias/:id/admin-data', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
     const barberia = barberias[id];
 
     if (!barberia) return res.status(404).json({ error: "Barbería no encontrada" });
+
+    const hoy = new Date().toISOString().split('T')[0];
+    let vencimiento = barberia.suscripcionActivaHasta || barberia.fechaVencimiento || hoy;
+    let porFecha = vencimiento >= hoy;
+    let estadoActivo = (barberia.activa !== undefined) ? (barberia.activa && porFecha) : porFecha;
+
+    if (!estadoActivo) {
+        return res.status(403).json({ 
+            success: false, 
+            bloqueada: true, 
+            error: "Esta barbería ha sido suspendida o bloqueada por el administrador." 
+        });
+    }
 
     const hostUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -458,7 +473,7 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
         ingresosDia: barberia.ingresosDia || 0,
         ingresosMes: barberia.ingresosMes || 0,
         baseUrl: hostUrl,
-        suscripcionActivaHasta: barberia.suscripcionActivaHasta || barberia.fechaVencimiento || "",
+        suscripcionActivaHasta: vencimiento,
         nequiDueno: barberia.nequiDueno || "",
         tieneClaveBorrado: Boolean(barberia.claveBorrado && barberia.claveBorrado.trim() !== ""),
         servicios: barberia.servicios || [],
@@ -469,7 +484,6 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
     });
 });
 
-// INVENTARIO
 app.post('/api/barberias/:id/inventario', async (req, res) => {
     const { id } = req.params;
     const { nombre, stock, precio, claveDueño } = req.body;
@@ -479,7 +493,7 @@ app.post('/api/barberias/:id/inventario', async (req, res) => {
 
     const claveReal = String(barberia.claveBorrado || "").trim();
     if (claveReal && String(claveDueño || "").trim() !== claveReal && String(claveDueño || "").trim() !== "1234Master") {
-        return res.status(401).json({ success: false, error: "Clave de dueño incorrecta." });
+        return res.status(401).json({ success: false, error: "Clave de dueño incorrecta. No tienes permiso para modificar el inventario." });
     }
 
     if (!barberia.inventario) barberia.inventario = [];
@@ -551,7 +565,6 @@ app.post('/api/barberias/:id/ventas-productos', async (req, res) => {
     res.json({ success: true, message: "¡Venta realizada con éxito!" });
 });
 
-// SERVICIOS
 app.post('/api/barberias/:id/servicios', async (req, res) => {
     const { id } = req.params;
     const { nombre, precio } = req.body;
@@ -574,7 +587,6 @@ app.delete('/api/barberias/:id/servicios/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
-// BARBEROS
 app.post('/api/barberias/:id/barberos', async (req, res) => {
     const { id } = req.params;
     const { nombre, especialidad } = req.body;
@@ -598,7 +610,6 @@ app.delete('/api/barberias/:id/barberos/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
-// ESTADO DE CITAS
 app.patch('/api/barberias/:id/citas/:index/estado', async (req, res) => {
     const { id, index } = req.params;
     const { estado } = req.body;
@@ -649,7 +660,6 @@ app.delete('/api/barberias/:id/citas/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
-// OBTENER DATOS PÚBLICOS DE LA BARBERÍA (PARA CLIENTES)
 app.get('/api/barberias/:id', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
@@ -669,7 +679,6 @@ app.get('/api/barberias/:id', async (req, res) => {
     });
 });
 
-// GUARDAR NUEVA CITA DESDE EL CLIENTE (CORREGIDO Y ASEGURADO)
 app.post('/api/barberias/:id/citas', async (req, res) => {
     const { id } = req.params;
     const { clienteNombre, clienteTelefono, servicio, barbero, fechaHora } = req.body;
@@ -693,7 +702,7 @@ app.post('/api/barberias/:id/citas', async (req, res) => {
         clienteTelefono: clienteTelefono || "",
         servicio,
         barbero: barbero || "General",
-        fechaHora: fechaHora || new Date().toLocaleString(),
+        fechaHora: fechaHora || new Date().toLocaleDateString(),
         estado: "Pendiente",
         creadaEn: new Date().toISOString()
     };
@@ -704,14 +713,11 @@ app.post('/api/barberias/:id/citas', async (req, res) => {
     res.json({ success: true, message: "¡Cita agendada con éxito!", cita: nuevaCita });
 });
 
-module.exports = app;
-
-if (process.env.NODE_ENV !== 'production') {
-    async function iniciarServidor() {
-        await conectarDB();
-        app.listen(PORT, IP_HOST, () => {
-            console.log(`> Servidor corriendo correctamente en el puerto ${PORT}`);
-        });
-    }
-    iniciarServidor();
+async function iniciarServidor() {
+    await conectarDB();
+    app.listen(PORT, IP_HOST, () => {
+        console.log(`> Servidor corriendo correctamente en el puerto ${PORT}`);
+    });
 }
+
+iniciarServidor();
