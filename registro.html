@@ -2,156 +2,166 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro y Administración - Barbería</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Barbería - Barber Innovation System</title>
 
+    <!-- CONFIGURACIÓN PWA Y FAVICONS -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="apple-touch-icon" href="/icon-192.png">
     <meta name="theme-color" content="#070a12">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <!-- VALIDACIÓN INTELIGENTE: Si ya hay una barbería registrada, redirigir directo al admin -->
-    <script>
-        (function() {
-            const idGuardado = localStorage.getItem("miBarberiaRegistradaId");
-            if (idGuardado) {
-                window.location.replace(`/admin.html?id=${idGuardado}`);
-            }
-        })();
-    </script>
 
     <style>
-        body { font-family: sans-serif; background: #070a12; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .container { width: 100%; max-width: 450px; background: #0f172a; padding: 25px; border-radius: 20px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        label { font-size: 12px; color: #94a3b8; font-weight: bold; display: block; margin-top: 10px; margin-bottom: 4px; }
-        input { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 10px; background: #1e293b; color: #fff; box-sizing: border-box; }
-        button[type="submit"] { width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        button[type="submit"]:disabled { background: #1e40af; opacity: 0.7; cursor: not-allowed; }
-        
-        /* BOTÓN DE INSTALACIÓN FLOTANTE VISIBLE */
-        #btnInstalarAppAdmin { 
-            position: fixed; bottom: 20px; right: 20px; z-index: 9999; 
-            background: #3b82f6; color: white; border: none; padding: 12px 20px; 
-            border-radius: 30px; font-weight: bold; font-size: 13px; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(59,130,246,0.4); display: flex; align-items: center; gap: 8px; 
-            transition: transform 0.2s ease, background-color 0.2s ease;
+        :root {
+            --primary: #3b82f6;
+            --bg-dark: #070a12;
+            --bg-card: #0f172a;
+            --bg-input: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
-        #btnInstalarAppAdmin:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card-registro {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+
+        p.sub {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2 style="text-align:center; margin-bottom: 5px;">💈 Registro de Barbería</h2>
-        <p style="text-align:center; font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Crea tu panel de administración</p>
-        
-        <form id="formRegistroBarberia">
+    <div class="card-registro">
+        <h2>💈 Registro de Barbería</h2>
+        <p class="sub">Crea tu panel de administración</p>
+
+        <form id="formRegistro">
             <label>Nombre del Local</label>
-            <input type="text" id="nombreBarberia" placeholder="Ej. Barber King" required>
+            <input type="text" id="nombre" placeholder="Ej. Barber King" required>
+
             <label>Dirección</label>
-            <input type="text" id="direccion" placeholder="Ej. Calle 45">
+            <input type="text" id="direccion" placeholder="Ej. Calle 45 #12-34">
+
             <label>Teléfono</label>
             <input type="tel" id="telefono" placeholder="Ej. 3001234567">
+
             <label>PIN de Acceso</label>
-            <input type="password" id="pinAdmin" placeholder="Ej. 1234" required>
-            <button type="submit">Registrar y Crear Panel</button>
+            <input type="password" id="pin" placeholder="Ej. 1234" required>
+
+            <button type="submit">Crear Mi Barbería</button>
         </form>
     </div>
 
-    <!-- BOTÓN DE INSTALACIÓN SIEMPRE DISPONIBLE -->
-    <button id="btnInstalarAppAdmin" onclick="intentarInstalarAdmin()">
-        📲 Instalar App Admin
-    </button>
-
     <script>
-        document.getElementById('formRegistroBarberia').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const nombre = document.getElementById('nombreBarberia').value.trim();
-            const direccion = document.getElementById('direccion').value.trim();
-            const telefono = document.getElementById('telefono').value.trim();
-            const pin = document.getElementById('pinAdmin').value.trim();
-
-            const btnSubmit = e.target.querySelector('button[type="submit"]');
-            const textoOriginal = btnSubmit.innerHTML;
-
-            btnSubmit.innerHTML = "⏳ Conectando con el servidor...";
-            btnSubmit.disabled = true;
-
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos límite
-
-                const res = await fetch('/api/barberias', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, direccion, telefono, pin }),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-                const data = await res.json();
-
-                if (data.success) {
-                    // GUARDAMOS EL ID EN LOCALSTORAGE PARA QUE NUNCA MÁS VEA EL REGISTRO
-                    localStorage.setItem("miBarberiaRegistradaId", data.barberiaId);
-
-                    alert("¡Barbería registrada con éxito!");
-                    window.location.href = `/admin.html?id=${data.barberiaId}`;
-                } else {
-                    alert(data.error || "Error al registrar");
-                    btnSubmit.innerHTML = textoOriginal;
-                    btnSubmit.disabled = false;
-                }
-            } catch (err) {
-                console.error("Error:", err);
-                alert("El servidor tardó en responder. Por favor, recarga la página e inténtalo de nuevo.");
-                btnSubmit.innerHTML = textoOriginal;
-                btnSubmit.disabled = false;
-            }
-        });
-
-        let deferredPromptAdmin = null;
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPromptAdmin = e;
-        });
-
-        async function intentarInstalarAdmin() {
-            if (deferredPromptAdmin) {
-                deferredPromptAdmin.prompt();
-                const { outcome } = await deferredPromptAdmin.userChoice;
-                if (outcome === 'accepted') {
-                    document.getElementById('btnInstalarAppAdmin').style.display = 'none';
-                }
-                deferredPromptAdmin = null;
-            } else {
-                alert("📱 Para instalar la App Admin:\n\n1. Toca los 3 puntos (⋮) arriba a la derecha en tu navegador (o el botón compartir en Safari).\n2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
-            }
-        }
-
-        window.addEventListener('appinstalled', () => {
-            console.log('App Admin instalada correctamente.');
-            const btn = document.getElementById('btnInstalarAppAdmin');
-            if (btn) btn.style.display = 'none';
-        });
-
-        // REGISTRO OBLIGATORIO DEL SERVICE WORKER PARA HABILITAR INSTALACIÓN PWA
+        // Registrar Service Worker para permitir la instalación PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
-                    .catch(err => console.log('Error al registrar el Service Worker:', err));
+                    .then(reg => console.log('Service Worker registrado:', reg.scope))
+                    .catch(err => console.error('Error Service Worker:', err));
             });
         }
+
+        document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre').value;
+            const direccion = document.getElementById('direccion').value;
+            const telefono = document.getElementById('telefono').value;
+            const pin = document.getElementById('pin').value;
+
+            try {
+                const res = await fetch('/api/barberias/registrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, direccion, telefono, pin })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('barberiaId', data.barberiaId);
+                    window.location.href = `/admin.html?id=${data.barberiaId}`;
+                } else {
+                    alert(data.error || 'Error al registrar la barbería');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error al conectar con el servidor.');
+            }
+        });
     </script>
 </body>
 </html>
