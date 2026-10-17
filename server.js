@@ -18,9 +18,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// ==========================================
-// RUTAS EXPLÍCITAS PARA PWA Y VISTAS
-// ==========================================
+// RUTAS PWA Y VISTAS
 app.get('/manifest.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.sendFile(path.join(__dirname, 'manifest.json'));
@@ -148,7 +146,7 @@ app.get('/', (req, res) => {
 });
 
 app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
-    let { nombre, direccion, telefono, pin } = req.body;
+    let { nombre, direccion, telefono } = req.body;
 
     if (!nombre) {
         return res.status(400).json({ success: false, error: "El nombre del local es obligatorio" });
@@ -172,7 +170,6 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
         nombre: nombre,
         direccion: direccion || "",
         telefono: telefono || "",
-        pin: String(pin || "1234").trim(),
         claveBorrado: "", 
         ingresosDia: 0,
         ingresosMes: 0,
@@ -206,35 +203,6 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
         linkAdmin: `${hostUrl}/admin.html?id=${idUnico}`,
         redirectUrl: `${hostUrl}/admin.html?id=${idUnico}`
     });
-});
-
-app.post('/api/barberias/:id/validar-pin', async (req, res) => {
-    const { id } = req.params;
-    const { pin } = req.body;
-    let barberias = await leerDB();
-    const barberia = barberias[id];
-
-    if (!barberia) {
-        return res.status(404).json({ success: false, error: "Barbería no encontrada" });
-    }
-
-    const hoy = new Date().toISOString().split('T')[0];
-    let vencimiento = barberia.suscripcionActivaHasta || barberia.fechaVencimiento || hoy;
-    let porFecha = vencimiento >= hoy;
-    let estadoActivo = (barberia.activa !== undefined) ? (barberia.activa && porFecha) : porFecha;
-
-    if (!estadoActivo) {
-        return res.status(403).json({ success: false, error: "Esta barbería se encuentra suspendida o bloqueada." });
-    }
-
-    const pinIngresado = String(pin || "").trim();
-    const pinReal = String(barberia.pin || "1234").trim();
-
-    if (pinIngresado === pinReal || pinIngresado === "1234Master" || pinIngresado === "1234") {
-        return res.json({ success: true, message: "PIN correcto" });
-    } else {
-        return res.status(401).json({ success: false, error: "PIN incorrecto" });
-    }
 });
 
 app.post('/api/barberias/:id/validar-clave-borrado', async (req, res) => {
@@ -398,7 +366,6 @@ app.get('/api/superadmin/barberias', async (req, res) => {
         return {
             id: id,
             nombre: b.nombre || id,
-            pin: b.pin || "1234",
             claveBorrado: b.claveBorrado || "No configurada",
             vigenciaHasta: vencimiento,
             suscripcionActivaHasta: vencimiento,
@@ -745,10 +712,6 @@ app.post('/api/barberias/:id/citas', async (req, res) => {
 
     res.json({ success: true, message: "¡Cita agendada con éxito!", cita: nuevaCita });
 });
-
-// ==========================================
-// EXPORTACIÓN VERCEL / SERVERLESS
-// ==========================================
 
 module.exports = app;
 
