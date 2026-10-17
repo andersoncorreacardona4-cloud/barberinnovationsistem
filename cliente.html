@@ -95,10 +95,15 @@
             margin-top: 20px;
         }
 
+        /* Botón de instalación PWA visible */
         #btnInstalarCliente {
-            display: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
         }
     </style>
 </head>
@@ -151,7 +156,7 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            btnInstalar.style.display = 'block';
+            btnInstalar.style.display = 'flex';
         });
 
         btnInstalar.addEventListener('click', async () => {
@@ -162,6 +167,8 @@
                     btnInstalar.style.display = 'none';
                 }
                 deferredPrompt = null;
+            } else {
+                alert('Para instalar la aplicación:\n\n1. Toca los tres puntos (⋮) en la esquina superior derecha del navegador Chrome.\n2. Selecciona "Instalar aplicación" o "Agregar a la pantalla principal".');
             }
         });
 
