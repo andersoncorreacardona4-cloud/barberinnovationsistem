@@ -58,22 +58,6 @@
             margin-bottom: 20px;
         }
 
-        /* Banner informativo elegante para instalación manual */
-        .banner-pwa {
-            background: rgba(6, 182, 212, 0.08);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            padding: 12px 16px;
-            border-radius: 14px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #cbd5e1;
-            line-height: 1.5;
-            text-align: center;
-        }
-        .banner-pwa strong {
-            color: var(--accent-cyan);
-        }
-
         .header-panel {
             text-align: center;
             border-bottom: 1px solid var(--border-color);
@@ -145,12 +129,6 @@
 <body>
 
     <div class="container">
-        <!-- BANNER DE GUÍA PARA ACCESO DIRECTO -->
-        <div class="banner-pwa">
-            📲 <strong>¿Quieres acceso rápido?</strong><br>
-            Toca los tres puntos (<strong>⋮</strong>) en tu navegador y selecciona <strong>"Agregar a la pantalla principal"</strong>.
-        </div>
-
         <div class="header-panel">
             <div class="barber-logo-icon">💈</div>
             <h1 id="nombreBarberiaCliente">Cargando Barbería...</h1>
@@ -270,7 +248,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(() => console.log('Service Worker de Cliente activo'))
+                    .then(() => console.log('Service Worker activo'))
                     .catch(err => console.error('Error Service Worker:', err));
             });
         }
