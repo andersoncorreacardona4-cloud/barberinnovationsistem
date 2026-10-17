@@ -358,7 +358,7 @@
 </head>
 <body>
 
-    <!-- PANEL DE ADMINISTRACIÓN PRINCIPAL (SIN PIN DE ACCESO) -->
+    <!-- PANEL DE ADMINISTRACIÓN PRINCIPAL (ACCESO DIRECTO SIN PIN) -->
     <div id="pantallaAdmin" class="container">
         <div class="header-panel">
             <div class="brand-container">
@@ -415,7 +415,7 @@
             </div>
         </div>
 
-        <!-- Configuración de Pago (Nequi Profesional + Activación de Suscripción) -->
+        <!-- Configuración de Pago Nequi -->
         <div class="section-box">
             <h3>📱 Cuenta de Pago por la Aplicación (Nequi)</h3>
             <div class="payment-card-pro">
@@ -464,7 +464,7 @@
                 <button type="submit" class="btn-success">Añadir Producto al Inventario</button>
             </form>
 
-            <p><b>Registrar venta de producto por barbero (Libre para barberos):</b></p>
+            <p><b>Registrar venta de producto por barbero:</b></p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-end;">
                 <div style="flex: 1; min-width: 150px;">
                     <label style="font-size: 11px; margin-bottom: 4px; display: block;">Barbero</label>
@@ -535,15 +535,14 @@
 
         if (!barberiaId) {
             alert("No se ha especificado ninguna barbería en el enlace.");
-            window.location.href = '/';
+            window.location.href = '/registro.html';
         }
 
         let datosLocalesAdmin = null;
 
-        // Cargar datos automáticamente al iniciar el panel sin requerir PIN
+        // Cargar datos automáticamente al iniciar y refrescar cada 10 segundos para ver parpadeos de citas en tiempo real
         window.addEventListener('DOMContentLoaded', () => {
             cargarDatosAdmin();
-            // Actualizar automáticamente la lista de citas cada 10 segundos para ver nuevos parpadeos en tiempo real
             setInterval(cargarDatosAdmin, 10000);
         });
 
@@ -611,6 +610,14 @@
         async function cargarDatosAdmin() {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
+                
+                // Si la barbería fue eliminada por el Superadmin, redirigir al registro
+                if (res.status === 404) {
+                    alert("Esta barbería ha sido eliminada por el administrador. Debes registrarla nuevamente.");
+                    window.location.replace('/registro.html');
+                    return;
+                }
+
                 const data = await res.json();
 
                 if (!data.success) {
@@ -745,7 +752,6 @@
                 const realIndex = data.citas.length - 1 - indexOriginal;
                 const estadoActual = cita.estado || 'Pendiente';
                 
-                // Si la cita está pendiente, aplicamos la clase de parpadeo neón
                 const esPendiente = estadoActual === 'Pendiente';
                 const claseParpadeo = esPendiente ? 'cita-pendiente-parpadeo' : '';
                 
