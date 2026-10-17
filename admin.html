@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administrador - Barbería</title>
+
+    <!-- CONFIGURACIÓN PWA Y FAVICONS -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="theme-color" content="#070a12">
+
     <style>
         :root {
             --primary: #3b82f6;
@@ -509,6 +516,15 @@
     </div>
 
     <script>
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registrado:', reg.scope))
+                    .catch(err => console.error('Error Service Worker:', err));
+            });
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const barberiaId = localStorage.getItem('barberiaId') || urlParams.get('id');
 
@@ -587,7 +603,7 @@
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
 
-                // SI LA BARBERÍA FUE ELIMINADA DESDE EL SUPERADMIN (404) O NO AUTORIZADA
+                // SI LA BARBERÍA FUE ELIMINADA DESDE EL SUPERADMIN (404, 401, 403)
                 if (res.status === 404 || res.status === 401 || res.status === 403) {
                     expulsarAlRegistro();
                     return;
@@ -612,7 +628,7 @@
             localStorage.removeItem('barberiaId');
             localStorage.removeItem('token');
             localStorage.removeItem('barberiaData');
-            localStorage.clear(); // Limpia completamente credenciales fantasma
+            localStorage.clear(); // Limpia almacenamiento local fantasma
             window.location.replace('/registro.html');
         }
 
