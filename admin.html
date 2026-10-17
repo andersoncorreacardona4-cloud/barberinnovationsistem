@@ -296,10 +296,6 @@
             border: 2px solid #06b6d4 !important;
         }
 
-        .oculto {
-            display: none !important;
-        }
-
         .payment-card-pro {
             background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #701a75 100%);
             border: 1px solid rgba(236, 72, 153, 0.4);
@@ -365,19 +361,8 @@
 </head>
 <body>
 
-    <!-- PANTALLA DE ACCESO POR PIN -->
-    <div id="pantallaPin" class="container" style="max-width: 440px; margin-top: 12vh; text-align: center;">
-        <div style="font-size: 50px; margin-bottom: 12px;">💈</div>
-        <h2 id="tituloAccesoPin">Panel de Administrador</h2>
-        <p style="margin-bottom: 22px;">Introduce tu PIN de seguridad para acceder</p>
-        <form id="formPin">
-            <input type="password" id="inputPin" placeholder="••••" required autocomplete="current-password" style="text-align: center; font-size: 26px; letter-spacing: 10px;">
-            <button type="submit">Desbloquear Panel</button>
-        </form>
-    </div>
-
-    <!-- PANEL DE ADMINISTRACIÓN PRINCIPAL -->
-    <div id="pantallaAdmin" class="container oculto">
+    <!-- PANEL DE ADMINISTRACIÓN PRINCIPAL (ACCESO DIRECTO SIN PIN) -->
+    <div id="pantallaAdmin" class="container">
         <div class="header-panel">
             <div class="brand-container">
                 <div class="barber-logo-icon">💈</div>
@@ -549,7 +534,7 @@
             <div id="listaCitas" style="margin-top: 15px;">Cargando citas...</div>
         </div>
         
-        <button type="button" id="btnCerrarSesion" class="btn-danger" style="margin-top: 35px;" onclick="location.reload()">Cerrar Sesión</button>
+        <button type="button" id="btnCerrarSesion" class="btn-danger" style="margin-top: 35px;" onclick="window.location.href='/'">Volver al Inicio</button>
     </div>
 
     <!-- MODAL PARA AGENDAR CITA MANUALMENTE -->
@@ -606,12 +591,13 @@
             window.location.href = '/';
         }
 
-        const pantallaPin = document.getElementById('pantallaPin');
-        const pantallaAdmin = document.getElementById('pantallaAdmin');
-        const formPin = document.getElementById('formPin');
-        const inputPin = document.getElementById('inputPin');
-
         let datosLocalesAdmin = null;
+
+        // CARGA AUTOMÁTICA DIRECTA AL ENTRAR
+        window.addEventListener('DOMContentLoaded', () => {
+            cargarDatosAdmin();
+            setInterval(cargarDatosAdmin, 10000);
+        });
 
         // FUNCIONES PARA CITA MANUAL
         function abrirModalCitaManual() {
@@ -690,31 +676,6 @@
             }
         }
 
-        formPin.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const pin = inputPin.value.trim();
-
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/validar-pin`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pin })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    pantallaPin.classList.add('oculto');
-                    pantallaAdmin.classList.remove('oculto');
-                    cargarDatosAdmin();
-                } else {
-                    alert(data.error || "PIN incorrecto");
-                }
-            } catch (err) {
-                console.error("Error al validar PIN:", err);
-                alert("Error de conexión con el servidor.");
-            }
-        });
-
         document.getElementById('formClaveDueno').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nuevaClave = document.getElementById('inputClaveDueno').value.trim();
@@ -779,10 +740,16 @@
         async function cargarDatosAdmin() {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
+                
+                if (res.status === 404) {
+                    alert("Esta barbería ha sido eliminada por el administrador. Debes registrarla nuevamente.");
+                    window.location.replace('/registro.html');
+                    return;
+                }
+
                 const data = await res.json();
 
                 if (!data.success) {
-                    alert(data.error || "Error al cargar datos.");
                     return;
                 }
 
