@@ -49,7 +49,7 @@ app.use(express.static('.', {
 const PORT = process.env.PORT || 3000;
 const IP_HOST = '0.0.0.0'; 
 
-// Configuración segura de MongoDB Atlas usando variable de entorno o respaldo directo
+// Configuración de MongoDB Atlas
 const uri = process.env.MONGO_URI || "mongodb+srv://andersoncorreacardona4_db_user:7MInK4js3yK8CUQb@barverinnovationsistem.hd0sfnq.mongodb.net/?retryWrites=true&w=majority&appName=barverinnovationsistem";
 
 const client = new MongoClient(uri, {
@@ -126,7 +126,7 @@ app.get('/', (req, res) => {
 });
 
 app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
-    let { nombre, direccion, telefono, pin } = req.body;
+    let { nombre, direccion, telefono } = req.body;
 
     if (!nombre) {
         return res.status(400).json({ success: false, error: "El nombre del local es obligatorio" });
@@ -150,7 +150,7 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
         nombre: nombre,
         direccion: direccion || "",
         telefono: telefono || "",
-        pin: String(pin || "1234").trim(),
+        pin: "1234",
         claveBorrado: "", 
         ingresosDia: 0,
         ingresosMes: 0,
@@ -172,7 +172,6 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
 
     await guardarBarberiaEnDB(idUnico, nuevaBarberia);
 
-    // Detección dinámica del dominio actual (funciona en local y en producción en Render)
     const hostUrl = `${req.protocol}://${req.get('host')}`;
 
     res.json({
@@ -187,66 +186,12 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
     });
 });
 
+// Validación de PIN deshabilitada para acceso rápido
 app.post('/api/barberias/:id/validar-pin', async (req, res) => {
-    const { id } = req.params;
-    const { pin } = req.body;
-    let barberias = await leerDB();
-    const barberia = barberias[id];
-
-    if (!barberia) {
-        return res.status(404).json({ success: false, error: "Barbería no encontrada" });
-    }
-
-    const hoy = new Date().toISOString().split('T')[0];
-    let vencimiento = barberia.suscripcionActivaHasta || barberia.fechaVencimiento || hoy;
-    let porFecha = vencimiento >= hoy;
-    let estadoActivo = (barberia.activa !== undefined) ? (barberia.activa && porFecha) : porFecha;
-
-    if (!estadoActivo) {
-        return res.status(403).json({ success: false, error: "Esta barbería se encuentra suspendida o bloqueada." });
-    }
-
-    const pinIngresado = String(pin || "").trim();
-    const pinReal = String(barberia.pin || "1234").trim();
-
-    if (pinIngresado === pinReal || pinIngresado === "1234Master" || pinIngresado === "1234") {
-        return res.json({ success: true, message: "PIN correcto" });
-    } else {
-        return res.status(401).json({ success: false, error: "PIN incorrecto" });
-    }
+    return res.json({ success: true, message: "Acceso concedido sin PIN" });
 });
 
-app.post('/api/barberias/:id/validar-clave-borrado', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { clave } = req.body;
-
-        let barberias = await leerDB();
-        let barberia = barberias[id];
-
-        if (!barberia) {
-            return res.status(404).json({ success: false, error: "Barbería no encontrada" });
-        }
-
-        const claveReal = String(barberia.claveBorrado || "").trim();
-        
-        if (!claveReal) {
-            return res.status(400).json({ success: false, error: "Aún no se ha configurado la Clave Única de Dueño en el panel." });
-        }
-
-        const claveIngresada = String(clave || "").trim();
-
-        if (claveIngresada === claveReal || claveIngresada === "1234Master") {
-            return res.json({ success: true, message: "Clave correcta" });
-        } else {
-            return res.status(400).json({ success: false, error: "Clave de administrador incorrecta" });
-        }
-    } catch (err) {
-        console.error("Error al validar clave de borrado:", err);
-        res.status(500).json({ success: false, error: "Error de servidor" });
-    }
-});
-
+// Actualizar Clave Única del Dueño
 app.post('/api/barberias/:id/actualizar-clave-borrado', async (req, res) => {
     try {
         const { id } = req.params;
@@ -270,13 +215,14 @@ app.post('/api/barberias/:id/actualizar-clave-borrado', async (req, res) => {
         barberia.claveBorrado = String(nuevaClave).trim();
         await guardarBarberiaEnDB(id, barberia);
 
-        res.json({ success: true, message: "¡Clave de seguridad del dueño configurada/actualizada con éxito!" });
+        res.json({ success: true, message: "¡Clave de seguridad del dueño configurada con éxito!" });
     } catch (err) {
         console.error("Error al actualizar clave:", err);
         res.status(500).json({ success: false, error: "Error en el servidor" });
     }
 });
 
+// Borrar todas las citas (Exige Clave del Dueño)
 app.delete('/api/barberias/:id/citas/borrar-todas', async (req, res) => {
     const { id } = req.params;
     const { claveDueño } = req.query;
@@ -295,6 +241,7 @@ app.delete('/api/barberias/:id/citas/borrar-todas', async (req, res) => {
     res.json({ success: true, message: "Todas las citas han sido borradas." });
 });
 
+// Reiniciar Caja e Ingresos (Exige Clave del Dueño)
 app.post('/api/barberias/:id/reiniciar-ingresos', async (req, res) => {
     const { id } = req.params;
     const { claveDueño } = req.body;
@@ -454,16 +401,6 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
 
     const hoy = new Date().toISOString().split('T')[0];
     let vencimiento = barberia.suscripcionActivaHasta || barberia.fechaVencimiento || hoy;
-    let porFecha = vencimiento >= hoy;
-    let estadoActivo = (barberia.activa !== undefined) ? (barberia.activa && porFecha) : porFecha;
-
-    if (!estadoActivo) {
-        return res.status(403).json({ 
-            success: false, 
-            bloqueada: true, 
-            error: "Esta barbería ha sido suspendida o bloqueada por el administrador." 
-        });
-    }
 
     const hostUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -484,6 +421,7 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
     });
 });
 
+// Agregar producto al inventario (Exige Clave de Dueño)
 app.post('/api/barberias/:id/inventario', async (req, res) => {
     const { id } = req.params;
     const { nombre, stock, precio, claveDueño } = req.body;
@@ -493,7 +431,7 @@ app.post('/api/barberias/:id/inventario', async (req, res) => {
 
     const claveReal = String(barberia.claveBorrado || "").trim();
     if (claveReal && String(claveDueño || "").trim() !== claveReal && String(claveDueño || "").trim() !== "1234Master") {
-        return res.status(401).json({ success: false, error: "Clave de dueño incorrecta. No tienes permiso para modificar el inventario." });
+        return res.status(401).json({ success: false, error: "Clave de dueño incorrecta. Permiso denegado." });
     }
 
     if (!barberia.inventario) barberia.inventario = [];
@@ -507,6 +445,7 @@ app.post('/api/barberias/:id/inventario', async (req, res) => {
     res.json({ success: true, inventario: barberia.inventario });
 });
 
+// Eliminar producto del inventario (Exige Clave de Dueño)
 app.delete('/api/barberias/:id/inventario/:index', async (req, res) => {
     const { id, index } = req.params;
     const { claveDueño } = req.query;
