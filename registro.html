@@ -104,7 +104,6 @@
             opacity: 0.9;
         }
 
-        /* Botón de instalación PWA siempre visible */
         #btnInstalarPWA {
             width: 100%;
             padding: 12px;
@@ -145,9 +144,6 @@
             <label>Teléfono</label>
             <input type="tel" id="telefono" placeholder="Ej. 3001234567">
 
-            <label>PIN de Acceso</label>
-            <input type="password" id="pin" placeholder="Ej. 1234" required>
-
             <button type="submit">Crear Mi Barbería</button>
         </form>
     </div>
@@ -156,7 +152,6 @@
         let deferredPrompt;
         const btnInstalar = document.getElementById('btnInstalarPWA');
 
-        // Registrar Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
@@ -165,20 +160,17 @@
             });
         }
 
-        // Capturar evento de instalación del navegador
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             btnInstalar.style.display = 'flex';
         });
 
-        // Acción al hacer clic en el botón de instalación
         btnInstalar.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    console.log('Usuario aceptó instalar la PWA');
                     btnInstalar.style.display = 'none';
                 }
                 deferredPrompt = null;
@@ -192,13 +184,12 @@
             const nombre = document.getElementById('nombre').value;
             const direccion = document.getElementById('direccion').value;
             const telefono = document.getElementById('telefono').value;
-            const pin = document.getElementById('pin').value;
 
             try {
                 const res = await fetch('/api/barberias/registrar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, direccion, telefono, pin })
+                    body: JSON.stringify({ nombre, direccion, telefono })
                 });
 
                 const data = await res.json();
