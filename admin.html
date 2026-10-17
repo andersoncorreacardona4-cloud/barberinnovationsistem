@@ -4,13 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administrador - Barbería</title>
-
-    <!-- CONFIGURACIÓN PWA Y FAVICONS -->
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-    <link rel="apple-touch-icon" href="/icon-192.png">
-    <meta name="theme-color" content="#070a12">
-
     <style>
         :root {
             --primary: #3b82f6;
@@ -279,6 +272,10 @@
             flex-wrap: wrap;
         }
 
+        .oculto {
+            display: none !important;
+        }
+
         .payment-card-pro {
             background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #701a75 100%);
             border: 1px solid rgba(236, 72, 153, 0.4);
@@ -344,7 +341,19 @@
 </head>
 <body>
 
-    <div id="pantallaAdmin" class="container">
+    <!-- PANTALLA DE ACCESO POR PIN -->
+    <div id="pantallaPin" class="container" style="max-width: 440px; margin-top: 12vh; text-align: center;">
+        <div style="font-size: 50px; margin-bottom: 12px;">💈</div>
+        <h2 id="tituloAccesoPin">Panel de Administrador</h2>
+        <p style="margin-bottom: 22px;">Introduce tu PIN de seguridad para acceder</p>
+        <form id="formPin">
+            <input type="password" id="inputPin" placeholder="••••" required autocomplete="current-password" style="text-align: center; font-size: 26px; letter-spacing: 10px;">
+            <button type="submit">Desbloquear Panel</button>
+        </form>
+    </div>
+
+    <!-- PANEL DE ADMINISTRACIÓN PRINCIPAL -->
+    <div id="pantallaAdmin" class="container oculto">
         <div class="header-panel">
             <div class="brand-container">
                 <div class="barber-logo-icon">💈</div>
@@ -373,7 +382,7 @@
         <!-- CONFIGURACIÓN DE CLAVE ÚNICA DE DUEÑO -->
         <div class="section-box" style="border: 1px dashed var(--accent-gold);">
             <h3 style="color: var(--accent-gold);">🔐 Clave Única del Dueño (Protección Total)</h3>
-            <p id="descripcionClaveStatus">Configura tu clave privada para proteger cambios críticos (inventario, borrar citas y caja):</p>
+            <p id="descripcionClaveStatus">Configura tu clave privada. Si ya existe una, deberás ingresarla para cambiarla:</p>
             
             <form id="formClaveDueno" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 10px;">
                 <div id="contenedorClaveActual" style="flex: 1; min-width: 140px; margin: 0; display: none;">
@@ -400,7 +409,7 @@
             </div>
         </div>
 
-        <!-- Configuración de Pago Nequi -->
+        <!-- Configuración de Pago (Nequi Profesional + Activación de Suscripción) -->
         <div class="section-box">
             <h3>📱 Cuenta de Pago por la Aplicación (Nequi)</h3>
             <div class="payment-card-pro">
@@ -449,7 +458,7 @@
                 <button type="submit" class="btn-success">Añadir Producto al Inventario</button>
             </form>
 
-            <p><b>Registrar venta de producto por barbero:</b></p>
+            <p><b>Registrar venta de producto por barbero (Libre para barberos):</b></p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-end;">
                 <div style="flex: 1; min-width: 150px;">
                     <label style="font-size: 11px; margin-bottom: 4px; display: block;">Barbero</label>
@@ -511,30 +520,48 @@
             <div id="listaCitas" style="margin-top: 15px;">Cargando citas...</div>
         </div>
         
-        <button type="button" id="btnCerrarSesion" class="btn-danger" style="margin-top: 35px;" onclick="window.location.href='/'">Volver al Inicio</button>
+        <button type="button" id="btnCerrarSesion" class="btn-danger" style="margin-top: 35px;" onclick="location.reload()">Cerrar Sesión</button>
     </div>
 
     <script>
-        // Registrar Service Worker para soporte offline/PWA de red
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registrado:', reg.scope))
-                    .catch(err => console.error('Error Service Worker:', err));
-            });
-        }
-
         const urlParams = new URLSearchParams(window.location.search);
-        const barberiaId = localStorage.getItem('barberiaId') || urlParams.get('id');
+        const barberiaId = urlParams.get('id');
 
         if (!barberiaId) {
-            window.location.replace('/registro.html');
+            alert("No se ha especificado ninguna barbería en el enlace.");
+            window.location.href = '/';
         }
+
+        const pantallaPin = document.getElementById('pantallaPin');
+        const pantallaAdmin = document.getElementById('pantallaAdmin');
+        const formPin = document.getElementById('formPin');
+        const inputPin = document.getElementById('inputPin');
 
         let datosLocalesAdmin = null;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            cargarDatosAdmin();
+        formPin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pin = inputPin.value.trim();
+
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/validar-pin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    pantallaPin.classList.add('oculto');
+                    pantallaAdmin.classList.remove('oculto');
+                    cargarDatosAdmin();
+                } else {
+                    alert(data.error || "PIN incorrecto");
+                }
+            } catch (err) {
+                console.error("Error al validar PIN:", err);
+                alert("Error de conexión con el servidor.");
+            }
         });
 
         document.getElementById('formClaveDueno').addEventListener('submit', async (e) => {
@@ -601,16 +628,10 @@
         async function cargarDatosAdmin() {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
-
-                if (res.status === 404 || res.status === 401 || res.status === 403) {
-                    expulsarAlRegistro();
-                    return;
-                }
-
                 const data = await res.json();
 
-                if (!res.ok || !data.success) {
-                    expulsarAlRegistro();
+                if (!data.success) {
+                    alert(data.error || "Error al cargar datos.");
                     return;
                 }
 
@@ -620,11 +641,6 @@
             } catch (err) {
                 console.error("Error cargando datos del admin:", err);
             }
-        }
-
-        function expulsarAlRegistro() {
-            localStorage.clear();
-            window.location.replace('/registro.html');
         }
 
         function renderizarPanel(data) {
@@ -731,164 +747,119 @@
                 divBarberos.innerHTML += `
                     <div class="card-item">
                         <div>
-                            <b>${b.nombre}</b> <span style="color:var(--text-muted);">(${b.especialidad || 'General'})</span>
-                            <div style="font-size: 12px; color: #34d399; margin-top: 2px;">Generado: <b>$${Number(totalGanado).toLocaleString()}</b></div>
+                            <span><b>${b.nombre}</b> (${b.especialidad || 'General'})</span><br>
+                            <small style="color: #34d399; font-weight: bold;">Ganancias Acumuladas: $${totalGanado.toLocaleString()}</small>
                         </div>
                         <button type="button" class="btn-danger" style="width: auto; padding: 6px 14px; margin:0;" onclick="eliminarBarbero(${index})">Eliminar</button>
                     </div>
                 `;
             });
 
-            // CITAS Y SOLICITUDES
+            // CITAS
             const divCitas = document.getElementById('listaCitas');
-            divCitas.innerHTML = (data.citas || []).length ? '' : '<p>No hay citas agendadas actualmente.</p>';
-            
-            (data.citas || []).slice().reverse().forEach((cita, indexOriginal) => {
-                const realIndex = data.citas.length - 1 - indexOriginal;
-                const estadoActual = cita.estado || 'Pendiente';
+            divCitas.innerHTML = (data.citas || []).length ? '' : '<p>No hay citas agendadas.</p>';
+            (data.citas || []).slice().reverse().forEach((cita, indexReal) => {
+                const indexOriginal = data.citas.length - 1 - indexReal;
+                const estadoClase = cita.estado === 'Atendido' || cita.estado === 'Completada' ? 'color: #34d399;' : 'color: #f59e0b;';
+                
                 divCitas.innerHTML += `
-                    <div class="card-item" style="background: rgba(15, 23, 42, 0.8);">
-                        <div style="flex: 1; min-width: 200px; margin-bottom: 8px;">
-                            <b style="color: #67e8f9; font-size: 16px;">${cita.clienteNombre}</b> <span style="font-size: 13px; color: #cbd5e1;">(${cita.clienteTelefono || 'Sin teléfono'})</span><br>
-                            <span style="font-size: 14px;">✂️ Servicio: <b>${cita.servicio}</b> | 💈 Barbero: <b>${cita.barbero}</b></span><br>
-                            <span style="font-size: 13px; color: var(--accent-gold);">📅 ${cita.fechaHora}</span><br>
-                            <span style="font-size: 12px; padding: 2px 8px; border-radius: 6px; background: ${estadoActual === 'Atendido' || estadoActual === 'Completada' ? 'rgba(16, 185, 129, 0.2); color: #34d399;' : 'rgba(245, 158, 11, 0.2); color: #f59e0b;'}">Estado: <b>${estadoActual}</b></span>
+                    <div class="card-item" style="display: block; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span>👤 <b>${cita.clienteNombre}</b> (${cita.clienteTelefono || 'Sin teléfono'})</span>
+                            <span style="font-weight: bold; ${estadoClase}">${cita.estado || 'Pendiente'}</span>
                         </div>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" class="btn-success" style="width: auto; padding: 8px 12px; margin:0; font-size: 12px;" onclick="cambiarEstadoCita(${realIndex}, 'Atendido')">Atendido</button>
-                            <button type="button" class="btn-danger" style="width: auto; padding: 8px 12px; margin:0; font-size: 12px;" onclick="eliminarCita(${realIndex})">Eliminar</button>
+                        <p style="margin: 2px 0;">✂️ Servicio: <b>${cita.servicio}</b></p>
+                        <p style="margin: 2px 0;">💈 Barbero: <b>${cita.barbero || 'General'}</b></p>
+                        <p style="margin: 2px 0; font-size: 12px; color: var(--text-muted);">🕒 ${cita.fechaHora}</p>
+                        <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                            <button type="button" class="btn-success" style="width: auto; padding: 6px 12px; margin:0;" onclick="cambiarEstadoCita(${indexOriginal}, 'Atendido')">Marcar Atendido</button>
+                            <button type="button" class="btn-danger" style="width: auto; padding: 6px 12px; margin:0;" onclick="eliminarCitaIndividual(${indexOriginal})">🔒 Eliminar (Dueño)</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function copiarAlPortapapeles(texto, boton) {
-            navigator.clipboard.writeText(texto).then(() => {
-                const originalText = boton.innerText;
-                boton.innerText = "¡Copiado!";
-                setTimeout(() => { boton.innerText = originalText; }, 2000);
-            });
-        }
-
-        function copiarNumeroNequi(btn) {
-            copiarAlPortapapeles("3226167815", btn);
-        }
-
-        // AGREGAR SERVICIO
+        // ACCIONES DE GESTIÓN
         document.getElementById('formServicio').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('nombreServicio').value.trim();
             const precio = document.getElementById('precioServicio').value.trim();
 
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/servicios`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, precio })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    document.getElementById('formServicio').reset();
-                    cargarDatosAdmin();
-                } else {
-                    alert(data.error || "Error al agregar servicio");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Error de conexión");
-            }
+            await fetch(`/api/barberias/${barberiaId}/servicios`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, precio })
+            });
+            document.getElementById('formServicio').reset();
+            cargarDatosAdmin();
         });
 
         async function eliminarServicio(index) {
-            if (!confirm("¿Deseas eliminar este servicio?")) return;
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/servicios/${index}`, { method: 'DELETE' });
-                const data = await res.json();
-                if (data.success) cargarDatosAdmin();
-            } catch (err) {
-                console.error(err);
-            }
+            await fetch(`/api/barberias/${barberiaId}/servicios/${index}`, { method: 'DELETE' });
+            cargarDatosAdmin();
         }
 
-        // AGREGAR BARBERO
         document.getElementById('formBarbero').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('nombreBarbero').value.trim();
             const especialidad = document.getElementById('especialidadBarbero').value.trim();
 
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/barberos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, especialidad })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    document.getElementById('formBarbero').reset();
-                    cargarDatosAdmin();
-                }
-            } catch (err) {
-                console.error(err);
-            }
+            await fetch(`/api/barberias/${barberiaId}/barberos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, especialidad })
+            });
+            document.getElementById('formBarbero').reset();
+            cargarDatosAdmin();
         });
 
         async function eliminarBarbero(index) {
-            if (!confirm("¿Deseas eliminar este barbero?")) return;
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/barberos/${index}`, { method: 'DELETE' });
-                const data = await res.json();
-                if (data.success) cargarDatosAdmin();
-            } catch (err) {
-                console.error(err);
+            const claveDueño = prompt("Introduce tu Clave Única de Dueño para eliminar este barbero:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/barberos/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
             }
         }
 
-        // INVENTARIO
         document.getElementById('formInventario').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('nombreProducto').value.trim();
             const stock = document.getElementById('stockProducto').value.trim();
             const precio = document.getElementById('precioProducto').value.trim();
-            const claveDueño = prompt("Introduce tu Clave Única del Dueño para añadir inventario:");
 
+            const claveDueño = prompt("🔒 Introduce tu Clave Única de Dueño para añadir producto al inventario:");
             if (!claveDueño) return;
 
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/inventario`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, stock, precio, claveDueño })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    document.getElementById('formInventario').reset();
-                    cargarDatosAdmin();
-                } else {
-                    alert(data.error || "Clave incorrecta o error al guardar");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Error de conexión");
+            const res = await fetch(`/api/barberias/${barberiaId}/inventario`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, stock, precio, claveDueño })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('formInventario').reset();
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "No se pudo añadir el producto.");
             }
         });
 
         async function eliminarProductoInventario(index) {
-            const claveDueño = prompt("Introduce tu Clave Única del Dueño para eliminar este producto:");
+            const claveDueño = prompt("🔒 Introduce tu Clave Única de Dueño para eliminar este producto:");
             if (!claveDueño) return;
 
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/inventario/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, {
-                    method: 'DELETE'
-                });
-                const data = await res.json();
-                if (data.success) {
-                    cargarDatosAdmin();
-                } else {
-                    alert(data.error || "Clave incorrecta");
-                }
-            } catch (err) {
-                console.error(err);
+            const res = await fetch(`/api/barberias/${barberiaId}/inventario/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
             }
         }
 
@@ -902,60 +873,94 @@
                 return;
             }
 
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/ventas-productos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ barbero, productoIndex, cantidad })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert(data.message);
-                    document.getElementById('cantidadProductoVenta').value = 1;
-                    cargarDatosAdmin();
-                } else {
-                    alert(data.error || "Error al registrar la venta");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Error de conexión");
+            const res = await fetch(`/api/barberias/${barberiaId}/ventas-productos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ barbero, productoIndex, cantidad })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                document.getElementById('cantidadProductoVenta').value = "1";
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Error al registrar la venta.");
             }
         }
 
-        // CITAS
         async function cambiarEstadoCita(index, nuevoEstado) {
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}/estado`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ estado: nuevoEstado })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    cargarDatosAdmin();
-                }
-            } catch (err) {
-                console.error(err);
+            const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}/estado`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+            const data = await res.json();
+            if (data.success) {
+                cargarDatosAdmin();
             }
         }
 
-        async function eliminarCita(index) {
-            if (!confirm("¿Deseas eliminar esta cita?")) return;
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}`, { method: 'DELETE' });
-                const data = await res.json();
-                if (data.success) cargarDatosAdmin();
-            } catch (err) {
-                console.error(err);
+        async function eliminarCitaIndividual(index) {
+            const claveDueño = prompt("🔒 Introduce tu Clave Única de Dueño para eliminar esta cita:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
             }
         }
 
         async function borrarTodasLasCitas() {
-            const claveDueño = prompt("Introduce tu Clave Única del Dueño para borrar todas las citas:");
+            const claveDueño = prompt("🔒 ADVERTENCIA: Introduce tu Clave de Dueño para vaciar todas las citas:");
             if (!claveDueño) return;
 
-            try {
-                const res = await fetch(`/api/barberias/${barberiaId}/citas/borrar-todas?claveDueño=${encodeURIComponent(claveDueño)}`, {
-                    method: 'DELETE'
-                });
-                const data = await res.json();
+            const res = await fetch(`/api/barberias/${barberiaId}/citas/borrar-todas?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
+            }
+        }
+
+        async function reiniciarIngresosCaja() {
+            const claveDueño = prompt("🔒 ADVERTENCIA: Introduce tu Clave de Dueño para reiniciar la caja del día y las ganancias de los turnos:");
+            if (!claveDueño) return;
+
+            const res = await fetch(`/api/barberias/${barberiaId}/reiniciar-ingresos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ claveDueño })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                cargarDatosAdmin();
+            } else {
+                alert(data.error || "Clave incorrecta.");
+            }
+        }
+
+        function copiarAlPortapapeles(texto, boton) {
+            navigator.clipboard.writeText(texto).then(() => {
+                const originalText = boton.innerText;
+                boton.innerText = "¡Copiado!";
+                setTimeout(() => { boton.innerText = originalText; }, 2000);
+            });
+        }
+
+        function copiarNumeroNequi(btn) {
+            const numero = "3226167815";
+            navigator.clipboard.writeText(numero).then(() => {
+                const original = btn.innerText;
+                btn.innerText = "¡Copiado!";
+                setTimeout(() => btn.innerText = original, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
