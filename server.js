@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 });
 
 // ==========================================
-// RUTAS EXPLÍCITAS PARA MANIFIESTOS Y PWA
+// RUTAS EXPLÍCITAS PARA MANIFIESTOS Y VISTAS
 // ==========================================
 app.get('/manifest.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
@@ -133,6 +133,7 @@ async function eliminarBarberiaDeDB(idUnico) {
     }
 }
 
+// RUTA RAIZ INTELIGENTE
 app.get('/', (req, res) => {
     const { id } = req.query;
     if (id) {
@@ -147,6 +148,7 @@ app.get('/', (req, res) => {
     res.status(404).send('<h1>Error: No se encontró la vista solicitada</h1>');
 });
 
+// REGISTRO DE BARBERÍA
 app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
     let { nombre, direccion, telefono } = req.body;
 
@@ -207,6 +209,7 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
     });
 });
 
+// VALIDAR CLAVE DE BORRADO
 app.post('/api/barberias/:id/validar-clave-borrado', async (req, res) => {
     try {
         const { id } = req.params;
@@ -268,6 +271,7 @@ app.post('/api/barberias/:id/actualizar-clave-borrado', async (req, res) => {
     }
 });
 
+// BORRAR CITAS
 app.delete('/api/barberias/:id/citas/borrar-todas', async (req, res) => {
     const { id } = req.params;
     const { claveDueño } = req.query;
@@ -286,6 +290,7 @@ app.delete('/api/barberias/:id/citas/borrar-todas', async (req, res) => {
     res.json({ success: true, message: "Todas las citas han sido borradas." });
 });
 
+// REINICIAR INGRESOS / CAJA
 app.post('/api/barberias/:id/reiniciar-ingresos', async (req, res) => {
     const { id } = req.params;
     const { claveDueño } = req.body;
@@ -307,6 +312,7 @@ app.post('/api/barberias/:id/reiniciar-ingresos', async (req, res) => {
     res.json({ success: true, message: "¡Caja e ingresos reiniciados con éxito para el nuevo turno!" });
 });
 
+// PAGAR SUSCRIPCIÓN
 app.post('/api/barberias/:id/pagar-suscripcion', async (req, res) => {
     const { id } = req.params;
     const { referenciaNequi } = req.body;
@@ -348,6 +354,7 @@ app.post('/api/barberias/:id/pagar-suscripcion', async (req, res) => {
     });
 });
 
+// SUPERADMIN LISTAR
 app.get('/api/superadmin/barberias', async (req, res) => {
     let barberias = await leerDB();
     let totalRegistradas = Object.keys(barberias).length;
@@ -435,25 +442,13 @@ app.delete('/api/superadmin/barberias/:id', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
+// DATOS PARA EL PANEL DE ADMINISTRACIÓN (`admin-data`)
 app.get('/api/barberias/:id/admin-data', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
     const barberia = barberias[id];
 
     if (!barberia) return res.status(404).json({ error: "Barbería no encontrada" });
-
-    const hoy = new Date().toISOString().split('T')[0];
-    let vencimiento = barberia.suscripcionActivaHasta || barberia.fechaVencimiento || hoy;
-    let porFecha = vencimiento >= hoy;
-    let estadoActivo = (barberia.activa !== undefined) ? (barberia.activa && porFecha) : porFecha;
-
-    if (!estadoActivo) {
-        return res.status(403).json({ 
-            success: false, 
-            bloqueada: true, 
-            error: "Esta barbería ha sido suspendida o bloqueada por el administrador." 
-        });
-    }
 
     const hostUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -463,7 +458,7 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
         ingresosDia: barberia.ingresosDia || 0,
         ingresosMes: barberia.ingresosMes || 0,
         baseUrl: hostUrl,
-        suscripcionActivaHasta: vencimiento,
+        suscripcionActivaHasta: barberia.suscripcionActivaHasta || barberia.fechaVencimiento || "",
         nequiDueno: barberia.nequiDueno || "",
         tieneClaveBorrado: Boolean(barberia.claveBorrado && barberia.claveBorrado.trim() !== ""),
         servicios: barberia.servicios || [],
@@ -474,6 +469,7 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
     });
 });
 
+// INVENTARIO
 app.post('/api/barberias/:id/inventario', async (req, res) => {
     const { id } = req.params;
     const { nombre, stock, precio, claveDueño } = req.body;
@@ -483,7 +479,7 @@ app.post('/api/barberias/:id/inventario', async (req, res) => {
 
     const claveReal = String(barberia.claveBorrado || "").trim();
     if (claveReal && String(claveDueño || "").trim() !== claveReal && String(claveDueño || "").trim() !== "1234Master") {
-        return res.status(401).json({ success: false, error: "Clave de dueño incorrecta. No tienes permiso para modificar el inventario." });
+        return res.status(401).json({ success: false, error: "Clave de dueño incorrecta." });
     }
 
     if (!barberia.inventario) barberia.inventario = [];
@@ -555,6 +551,7 @@ app.post('/api/barberias/:id/ventas-productos', async (req, res) => {
     res.json({ success: true, message: "¡Venta realizada con éxito!" });
 });
 
+// SERVICIOS
 app.post('/api/barberias/:id/servicios', async (req, res) => {
     const { id } = req.params;
     const { nombre, precio } = req.body;
@@ -577,6 +574,7 @@ app.delete('/api/barberias/:id/servicios/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
+// BARBEROS
 app.post('/api/barberias/:id/barberos', async (req, res) => {
     const { id } = req.params;
     const { nombre, especialidad } = req.body;
@@ -600,6 +598,7 @@ app.delete('/api/barberias/:id/barberos/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
+// ESTADO DE CITAS
 app.patch('/api/barberias/:id/citas/:index/estado', async (req, res) => {
     const { id, index } = req.params;
     const { estado } = req.body;
@@ -650,18 +649,7 @@ app.delete('/api/barberias/:id/citas/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
-app.get('/api/barberia/:id', async (req, res) => {
-    let barberias = await leerDB();
-    const { id } = req.params;
-    const barberia = barberias[id];
-
-    if (!barberia) {
-        return res.status(404).json({ success: false, error: "Barbería no encontrada o eliminada" });
-    }
-
-    res.json({ success: true, barberia });
-});
-
+// OBTENER DATOS PÚBLICOS DE LA BARBERÍA (PARA CLIENTES)
 app.get('/api/barberias/:id', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
@@ -681,6 +669,7 @@ app.get('/api/barberias/:id', async (req, res) => {
     });
 });
 
+// GUARDAR NUEVA CITA DESDE EL CLIENTE (CORREGIDO Y ASEGURADO)
 app.post('/api/barberias/:id/citas', async (req, res) => {
     const { id } = req.params;
     const { clienteNombre, clienteTelefono, servicio, barbero, fechaHora } = req.body;
@@ -704,7 +693,7 @@ app.post('/api/barberias/:id/citas', async (req, res) => {
         clienteTelefono: clienteTelefono || "",
         servicio,
         barbero: barbero || "General",
-        fechaHora: fechaHora || new Date().toLocaleDateString(),
+        fechaHora: fechaHora || new Date().toLocaleString(),
         estado: "Pendiente",
         creadaEn: new Date().toISOString()
     };
