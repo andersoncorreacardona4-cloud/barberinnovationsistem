@@ -275,6 +275,7 @@
             gap: 10px;
         }
 
+        /* EFECTO DE PARPADEO NEÓN PARA CITAS PENDIENTES */
         @keyframes parpadeoNeon {
             0% {
                 border-color: #06b6d4;
@@ -293,6 +294,10 @@
         .cita-pendiente-parpadeo {
             animation: parpadeoNeon 1.2s infinite ease-in-out;
             border: 2px solid #06b6d4 !important;
+        }
+
+        .oculto {
+            display: none !important;
         }
 
         .payment-card-pro {
@@ -360,7 +365,19 @@
 </head>
 <body>
 
-    <div id="pantallaAdmin" class="container">
+    <!-- PANTALLA DE ACCESO POR PIN -->
+    <div id="pantallaPin" class="container" style="max-width: 440px; margin-top: 12vh; text-align: center;">
+        <div style="font-size: 50px; margin-bottom: 12px;">💈</div>
+        <h2 id="tituloAccesoPin">Panel de Administrador</h2>
+        <p style="margin-bottom: 22px;">Introduce tu PIN de seguridad para acceder</p>
+        <form id="formPin">
+            <input type="password" id="inputPin" placeholder="••••" required autocomplete="current-password" style="text-align: center; font-size: 26px; letter-spacing: 10px;">
+            <button type="submit">Desbloquear Panel</button>
+        </form>
+    </div>
+
+    <!-- PANEL DE ADMINISTRACIÓN PRINCIPAL -->
+    <div id="pantallaAdmin" class="container oculto">
         <div class="header-panel">
             <div class="brand-container">
                 <div class="barber-logo-icon">💈</div>
@@ -416,7 +433,7 @@
             </div>
         </div>
 
-        <!-- Configuración de Pago Nequi -->
+        <!-- Configuración de Pago (Nequi Profesional + Activación de Suscripción) -->
         <div class="section-box">
             <h3>📱 Cuenta de Pago por la Aplicación (Nequi)</h3>
             <div class="payment-card-pro">
@@ -465,7 +482,7 @@
                 <button type="submit" class="btn-success">Añadir Producto al Inventario</button>
             </form>
 
-            <p><b>Registrar venta de producto por barbero:</b></p>
+            <p><b>Registrar venta de producto por barbero (Libre para barberos):</b></p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-end;">
                 <div style="flex: 1; min-width: 150px;">
                     <label style="font-size: 11px; margin-bottom: 4px; display: block;">Barbero</label>
@@ -515,7 +532,7 @@
             <div id="listaBarberos" style="margin-top: 15px;"></div>
         </div>
 
-        <!-- Citas Agendadas con Botón de Cita Manual -->
+        <!-- Citas Agendadas con Botón de Cita Manual y Parpadeo -->
         <div class="section-box citas-neon-box">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                 <h3 style="color: #67e8f9; margin: 0;">📅 Citas y Solicitudes Recibidas</h3>
@@ -532,7 +549,7 @@
             <div id="listaCitas" style="margin-top: 15px;">Cargando citas...</div>
         </div>
         
-        <button type="button" id="btnCerrarSesion" class="btn-danger" style="margin-top: 35px;" onclick="window.location.href='/'">Volver al Inicio</button>
+        <button type="button" id="btnCerrarSesion" class="btn-danger" style="margin-top: 35px;" onclick="location.reload()">Cerrar Sesión</button>
     </div>
 
     <!-- MODAL PARA AGENDAR CITA MANUALMENTE -->
@@ -586,15 +603,15 @@
 
         if (!barberiaId) {
             alert("No se ha especificado ninguna barbería en el enlace.");
-            window.location.href = '/registro.html';
+            window.location.href = '/';
         }
 
-        let datosLocalesAdmin = null;
+        const pantallaPin = document.getElementById('pantallaPin');
+        const pantallaAdmin = document.getElementById('pantallaAdmin');
+        const formPin = document.getElementById('formPin');
+        const inputPin = document.getElementById('inputPin');
 
-        window.addEventListener('DOMContentLoaded', () => {
-            cargarDatosAdmin();
-            setInterval(cargarDatosAdmin, 10000);
-        });
+        let datosLocalesAdmin = null;
 
         // FUNCIONES PARA CITA MANUAL
         function abrirModalCitaManual() {
@@ -673,6 +690,31 @@
             }
         }
 
+        formPin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pin = inputPin.value.trim();
+
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/validar-pin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    pantallaPin.classList.add('oculto');
+                    pantallaAdmin.classList.remove('oculto');
+                    cargarDatosAdmin();
+                } else {
+                    alert(data.error || "PIN incorrecto");
+                }
+            } catch (err) {
+                console.error("Error al validar PIN:", err);
+                alert("Error de conexión con el servidor.");
+            }
+        });
+
         document.getElementById('formClaveDueno').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nuevaClave = document.getElementById('inputClaveDueno').value.trim();
@@ -737,16 +779,10 @@
         async function cargarDatosAdmin() {
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/admin-data`);
-                
-                if (res.status === 404) {
-                    alert("Esta barbería ha sido eliminada por el administrador. Debes registrarla nuevamente.");
-                    window.location.replace('/registro.html');
-                    return;
-                }
-
                 const data = await res.json();
 
                 if (!data.success) {
+                    alert(data.error || "Error al cargar datos.");
                     return;
                 }
 
@@ -870,7 +906,7 @@
                 `;
             });
 
-            // CITAS AGENDADAS
+            // CITAS AGENDADAS CON PARPADEO NEÓN SI ESTÁN PENDIENTES
             const divCitas = document.getElementById('listaCitas');
             divCitas.innerHTML = (data.citas || []).length ? '' : '<p>No hay citas registradas.</p>';
             
@@ -996,3 +1032,93 @@
             if (!barbero || productoIndex === "" || !cantidad) {
                 alert("Selecciona barbero, producto y cantidad.");
                 return;
+            }
+
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/ventas-productos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ barbero, productoIndex, cantidad })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert(data.message);
+                    cargarDatosAdmin();
+                } else {
+                    alert(data.error || "Error al registrar la venta.");
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function cambiarEstadoCita(index, nuevoEstado) {
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}/estado`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: nuevoEstado })
+                });
+                if (res.ok) cargarDatosAdmin();
+            } catch (err) { console.error(err); }
+        }
+
+        async function eliminarCita(index) {
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/citas/${index}`, { method: 'DELETE' });
+                if (res.ok) cargarDatosAdmin();
+            } catch (err) { console.error(err); }
+        }
+
+        async function borrarTodasLasCitas() {
+            const claveDueño = prompt("🔒 Ingresa tu Clave de Dueño para borrar todas las citas:");
+            if (!claveDueño) return;
+
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/citas/borrar-todas?claveDueño=${encodeURIComponent(claveDueño)}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert(data.message);
+                    cargarDatosAdmin();
+                } else {
+                    alert(data.error || "Clave incorrecta.");
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function reiniciarIngresosCaja() {
+            const claveDueño = prompt("🔒 Ingresa tu Clave de Dueño para reiniciar caja e ingresos:");
+            if (!claveDueño) return;
+
+            try {
+                const res = await fetch(`/api/barberias/${barberiaId}/reiniciar-ingresos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ claveDueño })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert(data.message);
+                    cargarDatosAdmin();
+                } else {
+                    alert(data.error || "Clave incorrecta.");
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function copiarAlPortapapeles(texto, boton) {
+            navigator.clipboard.writeText(texto).then(() => {
+                const original = boton.innerText;
+                boton.innerText = "¡Copiado!";
+                setTimeout(() => boton.innerText = original, 2000);
+            });
+        }
+
+        function copiarNumeroNequi(btn) {
+            navigator.clipboard.writeText("3226167815").then(() => {
+                const original = btn.innerText;
+                btn.innerText = "¡Copiado!";
+                setTimeout(() => btn.innerText = original, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
