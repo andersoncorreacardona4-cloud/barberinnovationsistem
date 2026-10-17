@@ -266,7 +266,7 @@
         <header>
             <div>
                 <h1>⚡ Panel Master / Superadmin</h1>
-                <p class="subtitle">Control global de barberías, vigencias de pago, estados, PINs de acceso y claves de dueño.</p>
+                <p class="subtitle">Control global de barberías, vigencias de pago, estados y claves de dueño.</p>
             </div>
             <a href="/" class="btn-nav">
                 Ir a la Web Principal 🚀
@@ -293,14 +293,14 @@
                 <h2>💈 Listado de Barberías en la Plataforma</h2>
                 <div class="search-box">
                     <span class="search-icon">🔍</span>
-                    <input type="text" id="inputBuscar" placeholder="Buscar por nombre, ID o PIN..." onkeyup="filtrarBarberias()">
+                    <input type="text" id="inputBuscar" placeholder="Buscar por nombre, ID o clave..." onkeyup="filtrarBarberias()">
                 </div>
             </div>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Local / ID / Credenciales</th>
+                            <th>Local / ID / Seguridad</th>
                             <th>Vigencia y Estado de Pago</th>
                             <th>🔗 Link Clientes (Agendar)</th>
                             <th>🔑 Link Admin (Panel Dueño)</th>
@@ -463,7 +463,7 @@
                 const infoVigencia = calcularEstadoVigencia(b);
                 const estaActiva = b.activa === true || b.activa === 1 || b.activa === "true";
 
-                const estadoAccesoBadge = estaActiva
+                const estadoAccesoBadge = estaActiva 
                     ? '<span style="font-size: 11px; color: var(--primary-hover); font-weight: 500;">Acceso: Permitido</span>'
                     : '<span style="font-size: 11px; color: var(--accent-rose); font-weight: 500;">Acceso: Bloqueado</span>';
 
@@ -475,10 +475,7 @@
                     <td>
                         <div style="font-weight: 700; color: #ffffff; font-size: 14px;">${b.nombre || 'Sin nombre'}</div>
                         <div style="font-size: 11px; color: var(--text-muted); font-family: monospace;">ID: ${b.id}</div>
-                        <div style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;">
-                            <span style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--accent-amber); font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 6px;">
-                                🔑 PIN Admin: <b>${b.pin || '1234'}</b>
-                            </span>
+                        <div style="margin-top: 6px;">
                             <span style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--accent-pink); font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 6px;">
                                 🔒 Clave Dueño: <b>${b.claveBorrado || 'No configurada'}</b>
                             </span>
@@ -518,15 +515,14 @@
             const filtradas = listaBarberiasGlobal.filter(b => {
                 const nombre = (b.nombre || '').toLowerCase();
                 const id = String(b.id || '').toLowerCase();
-                const pin = String(b.pin || '').toLowerCase();
                 const clave = String(b.claveBorrado || '').toLowerCase();
-                return nombre.includes(texto) || id.includes(texto) || pin.includes(texto) || clave.includes(texto);
+                return nombre.includes(texto) || id.includes(texto) || clave.includes(texto);
             });
             renderizarTabla(filtradas);
         }
 
         async function eliminarBarberia(id, nombre) {
-            if (confirm(`¿Estás 100% seguro de eliminar la barbería "${nombre}"? Esta acción borrará todos sus datos definitivamente.`)) {
+            if (confirm(`¿Estás 100% seguro de eliminar la barbería "${nombre}"? Esta acción borrará todos sus datos definitivamente y exigirá registrarla de nuevo si intenta entrar.`)) {
                 try {
                     const res = await fetch(`/api/superadmin/barberias/${id}`, { method: 'DELETE' });
                     if (res.ok) {
