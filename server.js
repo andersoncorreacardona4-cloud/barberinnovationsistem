@@ -172,7 +172,8 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
 
     await guardarBarberiaEnDB(idUnico, nuevaBarberia);
 
-    const hostUrl = `${req.protocol}://${req.get('host')}`;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const hostUrl = `${protocol}://${req.get('host')}`;
 
     res.json({
         success: true,
@@ -306,7 +307,9 @@ app.get('/api/superadmin/barberias', async (req, res) => {
     let barberiasActivas = 0;
     let ingresosTotales = 0;
     const hoy = new Date().toISOString().split('T')[0];
-    const hostUrl = `${req.protocol}://${req.get('host')}`;
+    
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const hostUrl = `${protocol}://${req.get('host')}`;
 
     const lista = Object.keys(barberias).map(id => {
         let b = barberias[id];
@@ -388,7 +391,6 @@ app.delete('/api/superadmin/barberias/:id', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
-// Ruta que valida si la barbería existe (si fue eliminada por superadmin, devuelve 404 para expulsarla)
 app.get('/api/barberias/:id/admin-data', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
@@ -401,7 +403,8 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
     const hoy = new Date().toISOString().split('T')[0];
     let vencimiento = barberia.suscripcionActivaHasta || barberia.fechaVencimiento || hoy;
 
-    const hostUrl = `${req.protocol}://${req.get('host')}`;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const hostUrl = `${protocol}://${req.get('host')}`;
 
     res.json({
         success: true,
