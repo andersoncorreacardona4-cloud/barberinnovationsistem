@@ -18,7 +18,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// RUTAS PWA Y VISTAS
+// ==========================================
+// RUTAS EXPLÍCITAS PARA MANIFIESTOS Y PWA
+// ==========================================
 app.get('/manifest.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.sendFile(path.join(__dirname, 'manifest.json'));
@@ -50,7 +52,7 @@ app.get('/registro.html', (req, res) => {
 app.use(express.static('.', {
     dotfiles: 'ignore',
     etag: true,
-    extensions: ['html', 'htm', 'js', 'css', 'json'],
+    extensions: ['html', 'htm', 'js', 'css', 'json', 'png', 'jpg'],
     index: false
 }));
 
