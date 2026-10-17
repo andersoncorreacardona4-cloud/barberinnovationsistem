@@ -19,8 +19,18 @@ app.use((req, res, next) => {
 });
 
 // ==========================================
-// RUTAS EXPLÍCITAS PARA LAS VISTAS PRINCIPALES
+// RUTAS EXPLÍCITAS PARA PWA Y VISTAS
 // ==========================================
+app.get('/manifest.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.sendFile(path.join(__dirname, 'manifest.json'));
+});
+
+app.get('/manifest-cliente.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.sendFile(path.join(__dirname, 'manifest-cliente.json'));
+});
+
 app.get('/superadmin.html', (req, res) => {
     const ruta = path.join(__dirname, 'superadmin.html');
     if (fs.existsSync(ruta)) return res.sendFile(ruta);
@@ -42,14 +52,13 @@ app.get('/registro.html', (req, res) => {
 app.use(express.static('.', {
     dotfiles: 'ignore',
     etag: true,
-    extensions: ['html', 'htm', 'js', 'css'],
+    extensions: ['html', 'htm', 'js', 'css', 'json'],
     index: false
 }));
 
 const PORT = process.env.PORT || 3000;
 const IP_HOST = '0.0.0.0'; 
 
-// Configuración segura de MongoDB Atlas usando variable de entorno o respaldo directo
 const uri = process.env.MONGO_URI || "mongodb+srv://andersoncorreacardona4_db_user:7MInK4js3yK8CUQb@barverinnovationsistem.hd0sfnq.mongodb.net/?retryWrites=true&w=majority&appName=barverinnovationsistem";
 
 const client = new MongoClient(uri, {
@@ -77,7 +86,6 @@ async function conectarDB() {
     }
 }
 
-// Middleware de Vercel/Serverless para asegurar conexión a la BD en cada petición
 app.use(async (req, res, next) => {
     await conectarDB();
     next();
@@ -673,7 +681,6 @@ app.delete('/api/barberias/:id/citas/:index', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
-// Ruta GET /api/barberia/:id (en singular, para verificación de existencia y seguridad)
 app.get('/api/barberia/:id', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
@@ -740,7 +747,7 @@ app.post('/api/barberias/:id/citas', async (req, res) => {
 });
 
 // ==========================================
-// ADAPTACIÓN PARA VERCEL (SERVERLESS) Y LOCAL
+// EXPORTACIÓN VERCEL / SERVERLESS
 // ==========================================
 
 module.exports = app;
