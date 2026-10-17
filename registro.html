@@ -2,27 +2,21 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro de Barbería</title>
-
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-    <link rel="apple-touch-icon" href="/icon-192.png">
-    <link rel="manifest" href="/manifest.json?v=3">
-    
-    <meta name="theme-color" content="#070a12">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Nueva Barbería</title>
     <style>
         :root {
             --primary: #3b82f6;
+            --primary-hover: #60a5fa;
             --bg-dark: #070a12;
             --bg-card: #0f172a;
             --bg-input: #1e293b;
             --border-color: #334155;
+            --border-focus: #3b82f6;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-gold: #f59e0b;
         }
 
         * {
@@ -30,119 +24,257 @@
             margin: 0;
             padding: 0;
             max-width: 100%;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 90% 90%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+                linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
             color: var(--text-main);
             padding: 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
-            justify-content: center;
         }
 
         .container {
             width: 100%;
-            max-width: 420px;
+            max-width: 520px;
             background: rgba(15, 23, 42, 0.95);
-            padding: 30px;
-            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            padding: 40px 30px;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(59, 130, 246, 0.15);
             border: 1px solid var(--border-color);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
         }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 8px;
-            font-size: 24px;
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
         }
 
-        p.sub {
+        .brand-header {
             text-align: center;
-            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            font-size: 45px;
+            margin-bottom: 10px;
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.15);
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 24px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+        }
+
+        h1 {
+            font-size: 26px;
+            color: #ffffff;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
             font-size: 14px;
-            margin-bottom: 24px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
             font-size: 13px;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         input {
             width: 100%;
-            padding: 12px 14px;
-            background: var(--bg-input);
+            padding: 15px 18px;
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: white;
+            border-radius: 14px;
             font-size: 15px;
-            margin-bottom: 16px;
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            transition: all 0.2s ease;
         }
 
         input:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            background: var(--primary);
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            transition: all 0.2s ease;
             margin-top: 10px;
         }
 
         button:hover {
-            opacity: 0.9;
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        /* TARJETA DE RESULTADOS DE ENLACES */
+        #resultadoLinks {
+            display: none;
+            margin-top: 25px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--accent-cyan);
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.2);
+        }
+
+        .link-box-item {
+            margin-bottom: 15px;
+        }
+
+        .link-box-item label {
+            color: var(--accent-cyan);
+            font-size: 12px;
+        }
+
+        .input-copy-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .input-copy-group input {
+            background: rgba(15, 23, 42, 0.9);
+            font-size: 13px;
+            font-family: monospace;
+            color: #38bdf8;
+            padding: 10px 14px;
+        }
+
+        .btn-copiar {
+            width: auto;
+            margin: 0;
+            padding: 10px 16px;
+            font-size: 13px;
+            background: #2563eb;
+            box-shadow: none;
+        }
+
+        .btn-ir {
+            width: 100%;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            padding: 14px;
+            border-radius: 14px;
+            color: white;
+            font-weight: 700;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>💈 Registro de Barbería</h2>
-        <p class="sub">Crea tu panel de administración</p>
+        <div class="brand-header">
+            <div class="logo-icon">💈</div>
+            <h1>Registro de Barbería</h1>
+            <p class="subtitle">Crea tu sistema de gestión y agenda en segundos</p>
+        </div>
 
         <form id="formRegistro">
-            <label>Nombre del Local</label>
-            <input type="text" id="nombre" placeholder="Ej. Barber King" required>
+            <div class="form-group">
+                <label>Nombre del Establecimiento</label>
+                <input type="text" id="nombre" placeholder="Ej. Barbería Elite Gold" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Dirección (Opcional)</label>
+                <input type="text" id="direccion" placeholder="Ej. Calle 50 # 45-20">
+            </div>
 
-            <label>Dirección</label>
-            <input type="text" id="direccion" placeholder="Ej. Calle 45 #12-34">
+            <div class="form-group">
+                <label>Teléfono de Contacto (Opcional)</label>
+                <input type="text" id="telefono" placeholder="Ej. 3001234567">
+            </div>
 
-            <label>Teléfono</label>
-            <input type="tel" id="telefono" placeholder="Ej. 3001234567">
-
-            <button type="submit">Crear Mi Barbería</button>
+            <button type="submit" id="btnRegistrar">Registrar Barbería y Generar Enlaces</button>
         </form>
+
+        <!-- TARJETA GENERADA AL REGISTRAR -->
+        <div id="resultadoLinks">
+            <h3 style="color: #ffffff; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <span>✨</span> ¡Barbería Registrada con Éxito!
+            </h3>
+            <p style="font-size: 13px; margin-bottom: 15px; color: #cbd5e1;">Se han generado tus dos enlaces exclusivos:</p>
+
+            <!-- Enlace 1: Panel de Admin -->
+            <div class="link-box-item">
+                <label>🔐 1. Enlace de Administración (Dueño / Barberos):</label>
+                <div class="input-copy-group">
+                    <input type="text" id="inputLinkAdmin" readonly>
+                    <button type="button" class="btn-copiar" onclick="copiarTexto('inputLinkAdmin', this)">Copiar</button>
+                </div>
+            </div>
+
+            <!-- Enlace 2: Agendar Citas -->
+            <div class="link-box-item" style="margin-top: 12px;">
+                <label>📅 2. Enlace para Agendar Citas (Clientes):</label>
+                <div class="input-copy-group">
+                    <input type="text" id="inputLinkClientes" readonly>
+                    <button type="button" class="btn-copiar" onclick="copiarTexto('inputLinkClientes', this)">Copiar</button>
+                </div>
+            </div>
+
+            <a id="btnIrAdmin" href="#" class="btn-ir">🚀 Entrar a mi Panel de Administración</a>
+        </div>
     </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(() => console.log('SW registrado'))
-                    .catch(err => console.error('SW error', err));
-            });
-        }
-
         document.getElementById('formRegistro').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nombre = document.getElementById('nombre').value;
-            const direccion = document.getElementById('direccion').value;
-            const telefono = document.getElementById('telefono').value;
+            
+            const nombre = document.getElementById('nombre').value.trim();
+            const direccion = document.getElementById('direccion').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const btnRegistrar = document.getElementById('btnRegistrar');
+
+            btnRegistrar.innerText = "Registrando en la nube...";
+            btnRegistrar.disabled = true;
 
             try {
                 const res = await fetch('/api/barberias/registrar', {
@@ -152,17 +284,41 @@
                 });
 
                 const data = await res.json();
+
                 if (data.success) {
-                    localStorage.setItem('barberiaId', data.barberiaId);
-                    window.location.href = `/admin.html?id=${data.barberiaId}`;
+                    // Ocultar formulario y mostrar la caja de enlaces generados
+                    document.getElementById('formRegistro').style.display = 'none';
+                    
+                    document.getElementById('inputLinkAdmin').value = data.linkAdmin;
+                    document.getElementById('inputLinkClientes').value = data.linkClientes;
+                    document.getElementById('btnIrAdmin').href = data.redirectUrl;
+
+                    document.getElementById('resultadoLinks').style.display = 'block';
                 } else {
-                    alert(data.error || 'Error al registrar la barbería');
+                    alert(data.error || "No se pudo completar el registro.");
+                    btnRegistrar.innerText = "Registrar Barbería y Generar Enlaces";
+                    btnRegistrar.disabled = false;
                 }
             } catch (err) {
-                console.error(err);
-                alert('Error al conectar con el servidor.');
+                console.error("Error al registrar:", err);
+                alert("Error de conexión con el servidor.");
+                btnRegistrar.innerText = "Registrar Barbería y Generar Enlaces";
+                btnRegistrar.disabled = false;
             }
         });
+
+        function copiarTexto(elementId, boton) {
+            const input = document.getElementById(elementId);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const textoOriginal = boton.innerText;
+                boton.innerText = "¡Copiado!";
+                boton.style.background = "#059669";
+                setTimeout(() => {
+                    boton.innerText = textoOriginal;
+                    boton.style.background = "#2563eb";
+                }, 2000);
+            });
+        }
     </script>
 </body>
 </html>
