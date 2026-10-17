@@ -2,14 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agendar Cita - Barbería</title>
 
-    <!-- CONFIGURACIÓN PWA CLIENTE -->
-    <link rel="manifest" href="/manifest-cliente.json">
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="manifest" href="/manifest.json?v=3">
+    
     <meta name="theme-color" content="#070a12">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
         :root {
@@ -20,240 +23,200 @@
             --border-color: #334155;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --accent-cyan: #06b6d4;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            max-width: 100%;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
+            padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .card-cliente {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 30px;
-            border-radius: 20px;
+        .container {
             width: 100%;
-            max-width: 440px;
+            max-width: 500px;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            position: relative;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 6px;
-            font-size: 22px;
-            color: #ffffff;
-        }
-
-        p.sub {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 14px;
             margin-bottom: 20px;
         }
 
-        label {
-            display: block;
+        .header-panel {
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 18px;
+            margin-bottom: 22px;
+        }
+
+        .barber-logo-icon {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #1e40af 0%, #0e7490 100%);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 8px 20px rgba(14, 116, 144, 0.4);
+            border: 2px solid rgba(6, 182, 212, 0.4);
+            margin: 0 auto 12px auto;
+        }
+
+        h1 {
+            font-size: 22px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
             font-size: 13px;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: block;
             margin-top: 12px;
+            margin-bottom: 4px;
         }
 
         input, select {
             width: 100%;
-            padding: 12px 14px;
-            background: var(--bg-input);
+            padding: 12px 16px;
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: white;
-            font-size: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            background-color: var(--bg-input);
+            color: var(--text-main);
         }
 
-        button {
+        button[type="submit"] {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
             margin-top: 20px;
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
         }
-
-        #btnInstalarCliente {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
-        }
-
-        #modalGuiaCliente {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .modal-box {
-            background: var(--bg-card);
-            border: 2px solid var(--accent-cyan);
-            padding: 25px;
-            border-radius: 18px;
-            max-width: 340px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.3);
-        }
-        .modal-box h3 { color: var(--accent-cyan); margin-bottom: 12px; font-size: 18px; }
-        .modal-box p { font-size: 14px; color: #cbd5e1; margin-bottom: 15px; line-height: 1.6; text-align: left; }
-        .btn-entendido { background: var(--primary); margin-top: 5px; padding: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="card-cliente">
-        <!-- BOTÓN DE INSTALACIÓN PWA CLIENTE -->
-        <button id="btnInstalarCliente" type="button">📲 Instalar App de Citas</button>
+    <div class="container">
+        <div class="header-panel">
+            <div class="barber-logo-icon">💈</div>
+            <h1 id="nombreBarberiaCliente">Cargando Barbería...</h1>
+            <p class="subtitle">Reserva tu cita de forma rápida y sencilla</p>
+        </div>
 
-        <h2 id="nombreBarberiaCliente">💈 Citas Barbería</h2>
-        <p class="sub">Agenda tu turno en línea fácil y rápido</p>
-
-        <form id="formCitaCliente">
-            <label>Tu Nombre Completo</label>
+        <form id="formAgendarCita">
+            <label for="clienteNombre">Tu Nombre</label>
             <input type="text" id="clienteNombre" placeholder="Ej. Carlos Pérez" required>
 
-            <label>Teléfono de Contacto</label>
-            <input type="tel" id="clienteTelefono" placeholder="Ej. 3001234567" required>
+            <label for="clienteTelefono">Tu Teléfono / WhatsApp</label>
+            <input type="tel" id="clienteTelefono" placeholder="Ej. 3001234567">
 
-            <label>Seleccionar Servicio</label>
-            <select id="selectServicioCliente" required>
+            <label for="selectServicio">Selecciona el Servicio</label>
+            <select id="selectServicio" required>
                 <option value="">Cargando servicios...</option>
             </select>
 
-            <label>Seleccionar Barbero</label>
-            <select id="selectBarberoCliente">
-                <option value="">Cargando barberos...</option>
+            <label for="selectBarbero">Selecciona el Barbero</label>
+            <select id="selectBarbero">
+                <option value="General">Cualquier barbero disponible</option>
             </select>
 
-            <label>Fecha y Hora Deseada</label>
-            <input type="datetime-local" id="fechaHoraCliente" required>
+            <label for="fechaHoraCita">Fecha y Hora</label>
+            <input type="datetime-local" id="fechaHoraCita" required>
 
-            <button type="submit">Confirmar y Agendar Cita</button>
+            <button type="submit">📅 Confirmar y Agendar Cita</button>
         </form>
     </div>
 
-    <!-- MODAL GUÍA CLIENTE -->
-    <div id="modalGuiaCliente">
-        <div class="modal-box">
-            <h3>📲 Instalar App de Citas</h3>
-            <p>Para agendar tus citas con un solo toque desde tu celular:<br><br>
-            1. Toca los tres puntos (<strong>⋮</strong>) en la esquina superior derecha del navegador.<br>
-            2. Selecciona <strong>"Agregar a la pantalla principal"</strong> o <strong>"Crear acceso directo"</strong>.<br>
-            3. ¡Listo! Tendrás acceso directo a la barbería.</p>
-            <button type="button" class="btn-entendido" onclick="cerrarGuiaCliente()">¡Entendido!</button>
-        </div>
-    </div>
-
     <script>
-        let deferredPrompt;
-        const btnInstalar = document.getElementById('btnInstalarCliente');
-        const modalGuiaCliente = document.getElementById('modalGuiaCliente');
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registrado cliente'))
-                    .catch(err => console.error('SW error', err));
-            });
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-
-        if(btnInstalar) {
-            btnInstalar.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    deferredPrompt = null;
-                } else {
-                    modalGuiaCliente.style.display = 'flex';
-                }
-            });
-        }
-
-        function cerrarGuiaCliente() {
-            modalGuiaCliente.style.display = 'none';
-        }
-
-        // Obtener ID de barbería de la URL
         const urlParams = new URLSearchParams(window.location.search);
-        const barberiaId = urlParams.get('id');
+        let barberiaId = urlParams.get('id');
 
-        async function cargarBarberiaCliente() {
-            if (!barberiaId) {
-                alert('Enlace inválido. Falta el ID de la barbería.');
-                return;
-            }
+        if (!barberiaId) {
+            barberiaId = localStorage.getItem('clienteBarberiaId');
+        } else {
+            localStorage.setItem('clienteBarberiaId', barberiaId);
+        }
 
+        if (!barberiaId) {
+            document.body.innerHTML = `
+                <div style="text-align:center; color:white; padding:50px; font-family:sans-serif;">
+                    <h2>⚠️ Enlace no válido</h2>
+                    <p>Por favor, ingresa a través del enlace de WhatsApp que te compartió tu barbería.</p>
+                </div>
+            `;
+            throw new Error("Barbería no especificada.");
+        }
+
+        if (!urlParams.get('id') && barberiaId) {
+            window.history.replaceState({}, '', `/?id=${barberiaId}`);
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
             try {
-                const res = await fetch(`/api/barberia/${barberiaId}`);
-                if (!res.ok) {
-                    alert('La barbería seleccionada no existe o fue desactivada.');
+                const res = await fetch(`/api/barberias/${barberiaId}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert("No se encontró la información de esta barbería.");
                     return;
                 }
-                const data = await res.json();
-                if (data.success && data.barberia) {
-                    const b = data.barberia;
-                    document.getElementById('nombreBarberiaCliente').innerText = `💈 ${b.nombre || 'Barbería'}`;
 
-                    const selectS = document.getElementById('selectServicioCliente');
-                    selectS.innerHTML = '<option value="">Seleccionar Servicio...</option>';
-                    (b.servicios || []).forEach(s => {
-                        selectS.innerHTML += `<option value="${s.nombre} - $${s.precio}">${s.nombre} ($${Number(s.precio).toLocaleString()})</option>`;
-                    });
+                document.getElementById('nombreBarberiaCliente').innerText = data.nombre;
 
-                    const selectB = document.getElementById('selectBarberoCliente');
-                    selectB.innerHTML = '<option value="General">Cualquier Barbero Disponible</option>';
-                    (b.barberos || []).forEach(barb => {
-                        selectB.innerHTML += `<option value="${barb.nombre}">${barb.nombre}</option>`;
-                    });
-                }
+                const selectServicio = document.getElementById('selectServicio');
+                selectServicio.innerHTML = '<option value="">Selecciona un servicio...</option>';
+                (data.servicios || []).forEach(s => {
+                    selectServicio.innerHTML += `<option value="${s.nombre}">${s.nombre} - $${Number(s.precio).toLocaleString()}</option>`;
+                });
+
+                const selectBarbero = document.getElementById('selectBarbero');
+                selectBarbero.innerHTML = '<option value="General">Cualquier barbero disponible</option>';
+                (data.barberos || []).forEach(b => {
+                    selectBarbero.innerHTML += `<option value="${b.nombre}">${b.nombre} (${b.especialidad || 'General'})</option>`;
+                });
+
             } catch (err) {
-                console.error('Error cargando la barbería:', err);
+                console.error("Error al cargar datos del cliente:", err);
             }
-        }
+        });
 
-        document.getElementById('formCitaCliente').addEventListener('submit', async (e) => {
+        document.getElementById('formAgendarCita').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const clienteNombre = document.getElementById('clienteNombre').value;
-            const clienteTelefono = document.getElementById('clienteTelefono').value;
-            const servicio = document.getElementById('selectServicioCliente').value;
-            const barbero = document.getElementById('selectBarberoCliente').value;
-            const fechaHora = document.getElementById('fechaHoraCliente').value;
+
+            const clienteNombre = document.getElementById('clienteNombre').value.trim();
+            const clienteTelefono = document.getElementById('clienteTelefono').value.trim();
+            const servicio = document.getElementById('selectServicio').value;
+            const barbero = document.getElementById('selectBarbero').value;
+            const fechaHora = document.getElementById('fechaHoraCita').value;
 
             try {
                 const res = await fetch(`/api/barberias/${barberiaId}/citas`, {
@@ -264,18 +227,24 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    alert('¡Tu cita ha sido agendada con éxito!');
-                    document.getElementById('formCitaCliente').reset();
+                    alert("¡Cita agendada con éxito! Te esperamos.");
+                    document.getElementById('formAgendarCita').reset();
                 } else {
-                    alert(data.error || 'No se pudo agendar la cita.');
+                    alert(data.error || "No se pudo agendar la cita.");
                 }
             } catch (err) {
-                console.error(err);
-                alert('Error al conectar con el servidor.');
+                console.error("Error al agendar:", err);
+                alert("Error de conexión con el servidor.");
             }
         });
 
-        window.addEventListener('DOMContentLoaded', cargarBarberiaCliente);
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(() => console.log('Service Worker activo'))
+                    .catch(err => console.error('Error Service Worker:', err));
+            });
+        }
     </script>
 </body>
 </html>
