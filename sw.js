@@ -1,30 +1,13 @@
-const CACHE_NAME = 'barber-app-v1';
+const CACHE_NAME = 'barberia-pwa-v1';
 
-// Archivos principales que la app guardará en caché para funcionamiento rápido
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/cliente.html',
-  '/registro.html',
-  '/manifest.json',
-  '/manifest-cliente.json',
-  '/icon-192.png',
-  '/icon-512.png'
-];
-
-self.addEventListener('install', (e) => {
+// Instalación del Service Worker
+self.addEventListener('install', (event) => {
     self.skipWaiting();
-    e.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE).catch(err => {
-                console.warn('Algunos archivos no se pudieron precargar:', err);
-            });
-        })
-    );
 });
 
-self.addEventListener('activate', (e) => {
-    e.waitUntil(
+// Activación y limpieza de cachés antiguas
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cache) => {
@@ -33,19 +16,16 @@ self.addEventListener('activate', (e) => {
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim())
     );
-    self.clients.claim();
 });
 
-self.addEventListener('fetch', (e) => {
-    // IMPORTANTE: Evita guardar en caché las peticiones al backend (API de MongoDB) 
-    // para que las citas, ingresos y ventas reflejen siempre datos en tiempo real.
-    if (e.request.url.includes('/api/')) {
+// Estrategia de red prioritaria (no cachea llamadas a la API de MongoDB)
+self.addEventListener('fetch', (event) => {
+    if (event.request.url.includes('/api/')) {
         return;
     }
-
-    e.respondWith(
-        fetch(e.request).catch(() => caches.match(e.request))
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
     );
 });
