@@ -186,12 +186,10 @@ app.post(['/api/barberias/registrar', '/api/barberias'], async (req, res) => {
     });
 });
 
-// Validación de PIN deshabilitada para acceso rápido
 app.post('/api/barberias/:id/validar-pin', async (req, res) => {
-    return res.json({ success: true, message: "Acceso concedido sin PIN" });
+    return res.json({ success: true, message: "Acceso concedido" });
 });
 
-// Actualizar Clave Única del Dueño
 app.post('/api/barberias/:id/actualizar-clave-borrado', async (req, res) => {
     try {
         const { id } = req.params;
@@ -222,7 +220,6 @@ app.post('/api/barberias/:id/actualizar-clave-borrado', async (req, res) => {
     }
 });
 
-// Borrar todas las citas (Exige Clave del Dueño)
 app.delete('/api/barberias/:id/citas/borrar-todas', async (req, res) => {
     const { id } = req.params;
     const { claveDueño } = req.query;
@@ -241,7 +238,6 @@ app.delete('/api/barberias/:id/citas/borrar-todas', async (req, res) => {
     res.json({ success: true, message: "Todas las citas han sido borradas." });
 });
 
-// Reiniciar Caja e Ingresos (Exige Clave del Dueño)
 app.post('/api/barberias/:id/reiniciar-ingresos', async (req, res) => {
     const { id } = req.params;
     const { claveDueño } = req.body;
@@ -392,12 +388,15 @@ app.delete('/api/superadmin/barberias/:id', async (req, res) => {
     res.status(404).json({ error: "No encontrado" });
 });
 
+// Ruta que valida si la barbería existe (si fue eliminada por superadmin, devuelve 404 para expulsarla)
 app.get('/api/barberias/:id/admin-data', async (req, res) => {
     let barberias = await leerDB();
     const { id } = req.params;
     const barberia = barberias[id];
 
-    if (!barberia) return res.status(404).json({ error: "Barbería no encontrada" });
+    if (!barberia) {
+        return res.status(404).json({ success: false, error: "Barbería no encontrada o eliminada" });
+    }
 
     const hoy = new Date().toISOString().split('T')[0];
     let vencimiento = barberia.suscripcionActivaHasta || barberia.fechaVencimiento || hoy;
@@ -421,7 +420,6 @@ app.get('/api/barberias/:id/admin-data', async (req, res) => {
     });
 });
 
-// Agregar producto al inventario (Exige Clave de Dueño)
 app.post('/api/barberias/:id/inventario', async (req, res) => {
     const { id } = req.params;
     const { nombre, stock, precio, claveDueño } = req.body;
@@ -445,7 +443,6 @@ app.post('/api/barberias/:id/inventario', async (req, res) => {
     res.json({ success: true, inventario: barberia.inventario });
 });
 
-// Eliminar producto del inventario (Exige Clave de Dueño)
 app.delete('/api/barberias/:id/inventario/:index', async (req, res) => {
     const { id, index } = req.params;
     const { claveDueño } = req.query;
